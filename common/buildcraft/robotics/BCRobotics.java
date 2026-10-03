@@ -25,7 +25,7 @@ import buildcraft.core.BCCore;
 //@formatter:off
 @Mod(
     modid = BCRobotics.MODID,
-    name = "BuildCraft Robotics",
+    name = "BuildCraft Legacy Robotics",
     version = BCLib.VERSION,
     dependencies = "required-after:buildcraftcore@[" + BCLib.VERSION + "]"
 )

@@ -25,7 +25,7 @@ import buildcraft.core.BCCore;
 //@formatter:off
 @Mod(
     modid = BCEnergy.MODID,
-    name = "BuildCraft Energy",
+    name = "BuildCraft Legacy Energy",
     version = BCLib.VERSION,
     dependencies = "required-after:buildcraftcore@[" + BCLib.VERSION + "]"
 )

@@ -24,7 +24,7 @@ import buildcraft.core.BCCore;
 //@formatter:off
 @Mod(
     modid = BCFactory.MODID,
-    name = "BuildCraft Factory",
+    name = "BuildCraft Legacy Factory",
     version = BCLib.VERSION,
     dependencies = "required-after:buildcraftcore@[" + BCLib.VERSION + "]"
 )

@@ -28,7 +28,7 @@ import buildcraft.core.BCCore;
 //@formatter:off
 @Mod(
     modid = BCBuilders.MODID,
-    name = "BuildCraft Builders",
+    name = "BuildCraft Legacy Builders",
     version = BCLib.VERSION,
     dependencies = "required-after:buildcraftcore@[" + BCLib.VERSION + "]"
 )

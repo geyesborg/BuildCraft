@@ -40,7 +40,7 @@ import buildcraft.transport.pipe.SchematicBlockPipe;
 //@formatter:off
 @Mod(
     modid = BCTransport.MODID,
-    name = "BuildCraft Transport",
+    name = "BuildCraft Legacy Transport",
     version = BCLib.VERSION,
     dependencies = "required-after:buildcraftcore@[" + BCLib.VERSION + "]"
 )

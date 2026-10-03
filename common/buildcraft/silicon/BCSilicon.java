@@ -35,7 +35,7 @@ import buildcraft.silicon.plug.FacadeStateManager;
 //@formatter:off
 @Mod(
     modid = BCSilicon.MODID,
-    name = "BuildCraft Silicon",
+    name = "BuildCraft Legacy Silicon",
     version = BCLib.VERSION,
     dependencies = "required-after:buildcraftcore@[" + BCLib.VERSION + "];"
         // Pluggable registration needs to happen *after* the transport registries have been set

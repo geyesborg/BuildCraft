@@ -1,3 +1,13 @@
+## BuildCraft Legacy
+
+BuildCraft 8.0.x for Minecraft 1.12.2, maintained for [Cleanroom](https://github.com/CleanroomMC/Cleanroom)
+(Java 25) and built with CleanroomGradle. BuildCraft Compat is included in the same jar.
+
+* Mod IDs, block and item names and version numbering are BuildCraft's, so existing worlds and addons keep working.
+* Please report problems with BuildCraft Legacy here, not to the BuildCraft team.
+* Build: `gradlew build` with JDK 25 (needs the Cleanroom userdev in Maven Local) gives `build/libs/buildcraft-legacy-<version>.jar`.
+  `gradlew runClient` starts a dev client in `run/cleanroom-client`.
+
 ## Welcome to BuildCraft on GitHub
 
 ### Reporting an issue

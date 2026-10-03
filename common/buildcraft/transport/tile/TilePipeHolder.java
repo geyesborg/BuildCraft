@@ -138,11 +138,11 @@ public class TilePipeHolder extends TileBC_Neptune implements IPipeHolder, ITick
         NBTTagCompound plugs = new NBTTagCompound();
         for (EnumFacing face : EnumFacing.VALUES) {
             NBTTagCompound plugTag = pluggables.get(face).writeToNbt();
-            if (!plugTag.hasNoTags()) {
+            if (!plugTag.isEmpty()) {
                 plugs.setTag(face.getName(), plugTag);
             }
         }
-        if (!plugs.hasNoTags()) {
+        if (!plugs.isEmpty()) {
             nbt.setTag("plugs", plugs);
         }
         nbt.setTag("wireManager", wireManager.writeToNbt());
@@ -539,7 +539,7 @@ public class TilePipeHolder extends TileBC_Neptune implements IPipeHolder, ITick
     @Override
     public int getRedstoneInput(EnumFacing side) {
         if (side == null) {
-            return world.isBlockIndirectlyGettingPowered(pos);
+            return world.getRedstonePowerFromNeighbors(pos);
         } else {
             return world.getRedstonePower(pos.offset(side), side);
         }

@@ -71,7 +71,7 @@ public class SchematicBlockDefault implements ISchematicBlock {
         ResourceLocation registryName = context.block.getRegistryName();
         // noinspection ConstantConditions
         return registryName != null &&
-            RulesLoader.READ_DOMAINS.contains(registryName.getResourceDomain()) &&
+            RulesLoader.READ_DOMAINS.contains(registryName.getNamespace()) &&
             RulesLoader.getRules(
                 context.blockState,
                 context.block.hasTileEntity(context.blockState) && context.world.getTileEntity(context.pos) != null

@@ -46,8 +46,8 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank> {
         if (forRender == null) {
             return;
         }
-        Minecraft.getMinecraft().mcProfiler.startSection("bc");
-        Minecraft.getMinecraft().mcProfiler.startSection("tank");
+        Minecraft.getMinecraft().profiler.startSection("bc");
+        Minecraft.getMinecraft().profiler.startSection("tank");
 
         // gl state setup
         RenderHelper.disableStandardItemLighting();
@@ -86,8 +86,8 @@ public class RenderTank extends TileEntitySpecialRenderer<TileTank> {
         // gl state finish
         RenderHelper.enableStandardItemLighting();
 
-        Minecraft.getMinecraft().mcProfiler.endSection();
-        Minecraft.getMinecraft().mcProfiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
     }
 
     private static boolean isFullyConnected(TileTank thisTank, EnumFacing face, float partialTicks) {

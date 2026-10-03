@@ -701,7 +701,7 @@ public abstract class TileBC_Neptune extends TileEntity implements IPayloadRecei
         // 7.99.0 -> 7.99.4
         // Most tiles with a single tank saved it under "tank"
         NBTTagCompound tankComp = nbt.getCompoundTag("tank");
-        if (!tankComp.hasNoTags()) {
+        if (!tankComp.isEmpty()) {
             NBTTagCompound tanks = new NBTTagCompound();
             tanks.setTag("tank", tankComp);
             nbt.setTag("tanks", tanks);
@@ -717,11 +717,11 @@ public abstract class TileBC_Neptune extends TileEntity implements IPayloadRecei
             nbt.setTag("owner", NBTUtil.writeGameProfile(new NBTTagCompound(), owner));
         }
         NBTTagCompound items = itemManager.serializeNBT();
-        if (!items.hasNoTags()) {
+        if (!items.isEmpty()) {
             nbt.setTag("items", items);
         }
         NBTTagCompound tanks = tankManager.serializeNBT();
-        if (!tanks.hasNoTags()) {
+        if (!tanks.isEmpty()) {
             nbt.setTag("tanks", tanks);
         }
         return nbt;

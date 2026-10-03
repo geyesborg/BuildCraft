@@ -276,7 +276,7 @@ public class TileDynamoMJ extends TileBC_Neptune implements ITickable, IEngineLi
     @Override
     public void onNeighbourBlockChanged(Block block, BlockPos nehighbour) {
         super.onNeighbourBlockChanged(block, nehighbour);
-        isRedstonePowered = world.isBlockIndirectlyGettingPowered(getPos()) > 0;
+        isRedstonePowered = world.getRedstonePowerFromNeighbors(getPos()) > 0;
     }
 
     @Override

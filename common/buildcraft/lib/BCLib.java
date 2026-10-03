@@ -42,23 +42,22 @@ import buildcraft.lib.script.ReloadableRegistryManager;
 //@formatter:off
 @Mod(
     modid = BCLib.MODID,
-    name = "BuildCraft Lib",
+    name = "BuildCraft Legacy Lib",
     version = BCLib.VERSION,
-    updateJSON = "https://mod-buildcraft.com/version/versions.json",
-    acceptedMinecraftVersions = "(gradle_replace_mcversion,)",
-    dependencies = "required-after:forge@(gradle_replace_forgeversion,);before:poweradapters@(1.0.10,)"
+    acceptedMinecraftVersions = "[" + BCBuildInfo.MC_VERSION + "]",
+    dependencies = "required-after:forge@[" + BCBuildInfo.FORGE_VERSION + ",);before:poweradapters@(1.0.10,)"
 )
 //@formatter:on
 public class BCLib {
     public static final String MODID = "buildcraftlib";
-    public static final String VERSION = "$version";
-    public static final String MC_VERSION = "${mcversion}";
-    public static final String GIT_BRANCH = "${git_branch}";
-    public static final String GIT_COMMIT_HASH = "${git_commit_hash}";
-    public static final String GIT_COMMIT_MSG = "${git_commit_msg}";
-    public static final String GIT_COMMIT_AUTHOR = "${git_commit_author}";
+    public static final String VERSION = BCBuildInfo.VERSION;
+    public static final String MC_VERSION = BCBuildInfo.MC_VERSION;
+    public static final String GIT_BRANCH = BCBuildInfo.GIT_BRANCH;
+    public static final String GIT_COMMIT_HASH = BCBuildInfo.GIT_COMMIT_HASH;
+    public static final String GIT_COMMIT_MSG = BCBuildInfo.GIT_COMMIT_MSG;
+    public static final String GIT_COMMIT_AUTHOR = BCBuildInfo.GIT_COMMIT_AUTHOR;
 
-    public static final boolean DEV = VERSION.startsWith("$") || Boolean.getBoolean("buildcraft.dev");
+    public static final boolean DEV = Boolean.getBoolean("buildcraft.dev");
 
     @Instance(MODID)
     public static BCLib INSTANCE;

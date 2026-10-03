@@ -219,7 +219,7 @@ public enum FacadeStateManager implements IFacadeRegistry {
 
     private static void scanBlock(Block block) {
         try {
-            if (!DEBUG && KNOWN_INVALID_REPORTED_MODS.contains(block.getRegistryName().getResourceDomain())) {
+            if (!DEBUG && KNOWN_INVALID_REPORTED_MODS.contains(block.getRegistryName().getNamespace())) {
                 if (BCLib.VERSION.startsWith("7.99")) {
                     BCLog.logger.warn(
                         "[silicon.facade] Skipping " + block + " as it has been added to the list of broken mods!");

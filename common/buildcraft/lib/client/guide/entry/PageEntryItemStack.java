@@ -81,7 +81,7 @@ public class PageEntryItemStack extends PageValueType<ItemStackValueFilter> {
 
         for (Item item : ForgeRegistries.ITEMS) {
             ResourceLocation regName = item.getRegistryName();
-            if (regName == null || (limitDomains && !domains.contains(regName.getResourceDomain()))) {
+            if (regName == null || (limitDomains && !domains.contains(regName.getNamespace()))) {
                 continue;
             }
             if (!GuideManager.INSTANCE.objectsAdded.add(item)) {

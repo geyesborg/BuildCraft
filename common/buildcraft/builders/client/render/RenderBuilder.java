@@ -31,16 +31,16 @@ public class RenderBuilder extends FastTESR<TileBuilder> {
 
     @Override
     public void renderTileEntityFast(@Nonnull TileBuilder tile, double x, double y, double z, float partialTicks, int destroyStage, float partial, @Nonnull BufferBuilder buffer) {
-        Minecraft.getMinecraft().mcProfiler.startSection("bc");
-        Minecraft.getMinecraft().mcProfiler.startSection("builder");
+        Minecraft.getMinecraft().profiler.startSection("bc");
+        Minecraft.getMinecraft().profiler.startSection("builder");
 
         buffer.setTranslation(x - tile.getPos().getX(), y - tile.getPos().getY(), z - tile.getPos().getZ());
 
-        Minecraft.getMinecraft().mcProfiler.startSection("box");
+        Minecraft.getMinecraft().profiler.startSection("box");
         Box box = tile.getBox();
         LaserBoxRenderer.renderLaserBoxDynamic(box, BuildCraftLaserManager.STRIPES_WRITE, buffer, true);
 
-        Minecraft.getMinecraft().mcProfiler.endStartSection("path");
+        Minecraft.getMinecraft().profiler.endStartSection("path");
 
         List<BlockPos> path = tile.path;
         if (path != null) {
@@ -58,7 +58,7 @@ public class RenderBuilder extends FastTESR<TileBuilder> {
             }
         }
 
-        Minecraft.getMinecraft().mcProfiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
 
         buffer.setTranslation(0, 0, 0);
 
@@ -66,8 +66,8 @@ public class RenderBuilder extends FastTESR<TileBuilder> {
             RenderSnapshotBuilder.render(tile.getBuilder(), tile.getWorld(), tile.getPos(), x, y, z, partialTicks, buffer);
         }
 
-        Minecraft.getMinecraft().mcProfiler.endSection();
-        Minecraft.getMinecraft().mcProfiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
     }
 
     private static Vec3d offset(Vec3d from, Vec3d to) {

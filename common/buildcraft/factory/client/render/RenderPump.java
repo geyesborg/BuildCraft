@@ -53,7 +53,7 @@ public class RenderPump extends FastTESR<TilePump> {
         LED_POWER = new RenderPartCube[4];
         LED_STATUS = new RenderPartCube[4];
         for (int i = 0; i < 4; i++) {
-            EnumFacing facing = EnumFacing.getHorizontal(i);
+            EnumFacing facing = EnumFacing.byHorizontalIndex(i);
 
             final int dX, dZ;
             final double ledX, ledZ;
@@ -107,8 +107,8 @@ public class RenderPump extends FastTESR<TilePump> {
 
     @Override
     public void renderTileEntityFast(@Nonnull TilePump tile, double x, double y, double z, float partialTicks, int destroyStage, float partial, @Nonnull BufferBuilder buffer) {
-        Minecraft.getMinecraft().mcProfiler.startSection("bc");
-        Minecraft.getMinecraft().mcProfiler.startSection("pump");
+        Minecraft.getMinecraft().profiler.startSection("bc");
+        Minecraft.getMinecraft().profiler.startSection("pump");
 
         buffer.setTranslation(x, y, z);
 
@@ -121,7 +121,7 @@ public class RenderPump extends FastTESR<TilePump> {
 
         for (int i = 0; i < 4; i++) {
             // Get the light level of a direction
-            EnumFacing dir = EnumFacing.getHorizontal(i);
+            EnumFacing dir = EnumFacing.byHorizontalIndex(i);
             BlockPos pos = tile.getPos().offset(dir);
             int block = tile.getWorld().getLightFor(EnumSkyBlock.BLOCK, pos);
             int sky = tile.getWorld().getLightFor(EnumSkyBlock.SKY, pos);
@@ -140,8 +140,8 @@ public class RenderPump extends FastTESR<TilePump> {
 
         tubeRenderer.renderTileEntityFast(tile, x, y, z, partialTicks, destroyStage, partial, buffer);
 
-        Minecraft.getMinecraft().mcProfiler.endSection();
-        Minecraft.getMinecraft().mcProfiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
     }
 
     @Override

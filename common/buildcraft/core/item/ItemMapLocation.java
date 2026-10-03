@@ -47,7 +47,7 @@ import buildcraft.lib.misc.data.Box;
 import buildcraft.robotics.zone.ZonePlan;
 
 public class ItemMapLocation extends ItemBC_Neptune implements IMapLocation {
-    private static final String[] STORAGE_TAGS = "x,y,z,side,xMin,xMax,yMin,yMax,zMin,zMax,path,chunkMapping,name".split(",");
+    private static final String[] STORAGE_TAGS = "x,y,z,side,xMin,xMax,yMin,yMax,zMin,zMax,path,loadedChunks,name".split(",");
 
     public ItemMapLocation(String id) {
         super(id);
@@ -152,7 +152,7 @@ public class ItemMapLocation extends ItemBC_Neptune implements IMapLocation {
         for (String key : STORAGE_TAGS) {
             nbt.removeTag(key);
         }
-        if (nbt.hasNoTags()) {
+        if (nbt.isEmpty()) {
             stack.setTagCompound(null);
         }
         MapLocationType.CLEAN.setToStack(stack);

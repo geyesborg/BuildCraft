@@ -85,7 +85,7 @@ public class BoundingBoxUtil {
     /** Creates a box that extrudes from the specified face of the given block position. */
     public static AxisAlignedBB extrudeFace(BlockPos pos, EnumFacing face, double depth) {
         Vec3d from = new Vec3d(pos);
-        Vec3d to = new Vec3d(pos).addVector(1, 1, 1);
+        Vec3d to = new Vec3d(pos).add(1, 1, 1);
 
         Axis axis = face.getAxis();
         if (face.getAxisDirection() == AxisDirection.POSITIVE) {

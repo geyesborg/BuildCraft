@@ -42,7 +42,7 @@ import buildcraft.transport.BCTransportBlocks;
 public class ItemPipeHolder extends ItemBlock implements IItemBuildCraft, IItemPipe {
     public final PipeDefinition definition;
     private final String id;
-    private String unlocalizedName;
+    private String translationKey;
     private CreativeTabs creativeTab;
 
     protected ItemPipeHolder(PipeDefinition definition, String tagId) {
@@ -64,7 +64,7 @@ public class ItemPipeHolder extends ItemBlock implements IItemBuildCraft, IItemP
     /** Creates a new {@link ItemPipeHolder} with a tag that will be taken from {@link TagManager}. */
     public static ItemPipeHolder createAndTag(PipeDefinition definition) {
         ResourceLocation reg = definition.identifier;
-        String tagId = "item.pipe." + reg.getResourceDomain() + "." + reg.getResourcePath();
+        String tagId = "item.pipe." + reg.getNamespace() + "." + reg.getPath();
         return new ItemPipeHolder(definition, tagId);
     }
 
@@ -118,19 +118,19 @@ public class ItemPipeHolder extends ItemBlock implements IItemBuildCraft, IItemP
     // ItemBlock overrides these to point to the block
 
     @Override
-    public ItemBlock setUnlocalizedName(String unlocalizedName) {
-        this.unlocalizedName = "item." + unlocalizedName;
+    public ItemBlock setTranslationKey(String translationKey) {
+        this.translationKey = "item." + translationKey;
         return this;
     }
 
     @Override
-    public String getUnlocalizedName() {
-        return unlocalizedName;
+    public String getTranslationKey() {
+        return translationKey;
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack) {
-        return unlocalizedName;
+    public String getTranslationKey(ItemStack stack) {
+        return translationKey;
     }
 
     @Override
@@ -149,7 +149,7 @@ public class ItemPipeHolder extends ItemBlock implements IItemBuildCraft, IItemP
     @Override
     @SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flag) {
-        String tipName = "tip." + unlocalizedName.replace(".name", "").replace("item.", "");
+        String tipName = "tip." + translationKey.replace(".name", "").replace("item.", "");
         String localised = I18n.format(tipName);
         if (!localised.equals(tipName)) {
             tooltip.add(TextFormatting.GRAY + localised);

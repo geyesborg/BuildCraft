@@ -61,7 +61,7 @@ public class TileZonePlanner extends TileBC_Neptune implements ITickable, IDebug
         1,
         (slot, stack) -> stack.getItem() instanceof ItemMapLocation &&
             Optional.ofNullable(stack.getTagCompound())
-                .map(tagCompound -> tagCompound.hasKey("chunkMapping"))
+                .map(tagCompound -> tagCompound.hasKey("loadedChunks"))
                 .orElse(false) &&
             stack.getCount() == 1,
         EnumAccess.NONE
@@ -187,7 +187,7 @@ public class TileZonePlanner extends TileBC_Neptune implements ITickable, IDebug
             // noinspection ConstantConditions
             if (!invInputPaintbrush.getStackInSlot(0).isEmpty() && invInputPaintbrush.getStackInSlot(0).getItem() instanceof ItemPaintbrush_BC8 && !invInputMapLocation.getStackInSlot(0).isEmpty()
                 && invInputMapLocation.getStackInSlot(0).getItem() instanceof ItemMapLocation && invInputMapLocation.getStackInSlot(0).getTagCompound() != null && invInputMapLocation.getStackInSlot(0)
-                    .getTagCompound().hasKey("chunkMapping") && invInputResult.getStackInSlot(0).isEmpty()) {
+                    .getTagCompound().hasKey("loadedChunks") && invInputResult.getStackInSlot(0).isEmpty()) {
                 if (progressInput == 0) {
                     deltaProgressInput.addDelta(0, 200, 1);
                     deltaProgressInput.addDelta(200, 205, -1);

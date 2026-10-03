@@ -112,7 +112,7 @@ public class LocaleUtil {
     /** @param colour The {@link EnumDyeColor} to localize.
      * @return a localised name for the given colour. */
     public static String localizeColour(EnumDyeColor colour) {
-        return localize("item.fireworksCharge." + colour.getUnlocalizedName());
+        return localize("item.fireworksCharge." + colour.getTranslationKey());
     }
 
     /** @param face The {@link EnumFacing} to localize.

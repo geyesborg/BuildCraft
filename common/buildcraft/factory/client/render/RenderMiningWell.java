@@ -72,8 +72,8 @@ public class RenderMiningWell extends FastTESR<TileMiningWell> {
 
     @Override
     public void renderTileEntityFast(@Nonnull TileMiningWell tile, double x, double y, double z, float partialTicks, int destroyStage, float partial, @Nonnull BufferBuilder buffer) {
-        Minecraft.getMinecraft().mcProfiler.startSection("bc");
-        Minecraft.getMinecraft().mcProfiler.startSection("miner");
+        Minecraft.getMinecraft().profiler.startSection("bc");
+        Minecraft.getMinecraft().profiler.startSection("miner");
 
         buffer.setTranslation(x, y, z);
         EnumFacing facing = EnumFacing.NORTH;
@@ -126,8 +126,8 @@ public class RenderMiningWell extends FastTESR<TileMiningWell> {
 
         tubeRenderer.renderTileEntityFast(tile, x, y, z, partialTicks, destroyStage, partial, buffer);
 
-        Minecraft.getMinecraft().mcProfiler.endSection();
-        Minecraft.getMinecraft().mcProfiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
     }
 
     @Override

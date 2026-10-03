@@ -50,7 +50,7 @@ public abstract class BlockEngineBase_BC8<E extends Enum<E> & IEngineType> exten
 
     public void registerEngine(E type, Supplier<? extends TileEngineBase_BC8> constructor) {
         if (RegistryConfig.isEnabled("engines", getRegistryName() + "/" + type.name().toLowerCase(Locale.ROOT),
-            getUnlocalizedName(type))) {
+            getTranslationKey(type))) {
             engineTileConstructors.put(type, constructor);
         }
     }
@@ -68,7 +68,7 @@ public abstract class BlockEngineBase_BC8<E extends Enum<E> & IEngineType> exten
 
     public abstract E getEngineType(int meta);
 
-    public abstract String getUnlocalizedName(E engine);
+    public abstract String getTranslationKey(E engine);
 
     // BlockState
 

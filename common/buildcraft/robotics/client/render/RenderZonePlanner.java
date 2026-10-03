@@ -56,8 +56,8 @@ public class RenderZonePlanner extends TileEntitySpecialRenderer<TileZonePlanner
     @Override
     public final void render(TileZonePlanner tile, double x, double y, double z, float partialTicks, int destroyStage,
         float alpha) {
-        Minecraft.getMinecraft().mcProfiler.startSection("bc");
-        Minecraft.getMinecraft().mcProfiler.startSection("zone");
+        Minecraft.getMinecraft().profiler.startSection("bc");
+        Minecraft.getMinecraft().profiler.startSection("zone");
 
         double offset = 0.001;
         double minX = 3 / 16D - offset;
@@ -138,8 +138,8 @@ public class RenderZonePlanner extends TileEntitySpecialRenderer<TileZonePlanner
         }
         RenderHelper.enableStandardItemLighting();
 
-        Minecraft.getMinecraft().mcProfiler.endSection();
-        Minecraft.getMinecraft().mcProfiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
     }
 
     private static DynamicTextureBC getTexture(TileZonePlanner tile, EnumFacing side) {

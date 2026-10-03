@@ -162,7 +162,7 @@ public class PluggableFacade extends PipePluggable implements IFacade {
         if (states.type == FacadeType.Basic) {
             FacadePhasedState facadeState = states.phasedStates[activeState];
             IBlockState blockState = facadeState.stateInfo.state;
-            BlockRenderLayer targetLayer = blockState.getBlock().getBlockLayer();
+            BlockRenderLayer targetLayer = blockState.getBlock().getRenderLayer();
             if (targetLayer == BlockRenderLayer.TRANSLUCENT) {
                 if (layer != targetLayer) {
                     return null;

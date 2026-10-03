@@ -67,9 +67,9 @@ public enum PatternParameterXZDir implements IStatementParameter {
         if (nbt.hasKey("dir", Constants.NBT.TAG_ANY_NUMERIC)) {
             // Older versions
             int d = nbt.getByte("dir") + 2;
-            dir = EnumFacing.getHorizontal(d);
+            dir = EnumFacing.byHorizontalIndex(d);
         } else {
-            dir = EnumFacing.getHorizontal(nbt.getByte("d"));
+            dir = EnumFacing.byHorizontalIndex(nbt.getByte("d"));
         }
         PatternParameterXZDir param = map.get(dir);
         if (param == null) {

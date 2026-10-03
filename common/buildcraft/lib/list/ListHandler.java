@@ -278,7 +278,7 @@ public final class ListHandler {
             // No non-default lines, we can remove the old NBT data
             data.removeTag("written");
             data.removeTag("lines");
-            if (data.hasNoTags()) {
+            if (data.isEmpty()) {
                 // We can safely remove the
                 stackList.setTagCompound(null);
             }

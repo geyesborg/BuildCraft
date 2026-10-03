@@ -1,560 +1,229 @@
 /*
- * Copyright (c) 2017 SpaceToad and the BuildCraft team
+ * BuildCraft Legacy: BuildCraft 8.0.x for Minecraft 1.12.2, built with CleanroomGradle for Cleanroom (Java 25).
  * This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/
  */
 
+import com.cleanroommc.gradle.api.task.mc.RunMinecraft
 
-/* Build info:
+plugins {
+    id 'java-library'
+    id 'com.cleanroommc.cleanroomgradle'
+}
 
- - Using a release version (e.g. 8.0.4 rather than 8.0.4-SNAPSHOT or 8.0.4-0A1B2C3D4E5) requires setting the "release" system property to true
-    - Add "-Drelease=true" to disallow adding the git commit hash to the end, or SNAPSHOT if we cannot find our git directory.
+group = 'com.mod-buildcraft'
+version = providers.gradleProperty('mod_version').get()
 
-*/
+def mcVersion = providers.gradleProperty('mc_version').get()
+def forgeVersion = providers.gradleProperty('forge_version').get()
 
-// DON'T TOUCH THE BUILDSCRIPT[] BLOCK
-// its special, and it is only there to make ForgeGradle work correctly.
+base {
+    archivesName = 'buildcraft-legacy'
+}
 
-buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-        maven {
-            url = "https://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
     }
-    dependencies {
-        classpath "net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT"
-        classpath "org.ajoberstar:grgit:2.2.1"
-    }
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_25
+    withSourcesJar()
 }
 
-apply plugin: "net.minecraftforge.gradle.forge" // adds the forge dependency
-apply plugin: 'maven' // for uploading to a maven repo
-apply plugin: 'maven-publish' // for uploading to a maven repo
-if (!hasProperty("grgit")) {
-    // As otherwise it logs a warning as grgit gets applied twice
-    apply plugin: "org.ajoberstar.grgit"
+repositories {
+    maven { url = 'https://maven.cleanroommc.com' }
+    mavenCentral()
 }
 
-if (gradle.startParameter.taskNames.contains("checkstyle")) {
-    apply plugin: "checkstyle"
-}
+def expressionDir = 'sub_projects/expression'
+def expressionAutogen = layout.buildDirectory.dir('generated/sources/expression/java')
+def buildInfoDir = layout.buildDirectory.dir('generated/sources/buildinfo/java')
 
-ext.configFile = file "build.properties"
-configFile.withReader {
-    // Load config. It shall from now be referenced as simply config or project.config
-    def prop = new Properties()
-    prop.load(it)
-    project.ext.config = new ConfigSlurper().parse prop
-}
-
-if (System.getenv("BUILD_NUMBER") != null) {
-    config.mod_version += "-${System.getenv("BUILD_NUMBER")}"
-}
-if (System.getenv("BUILD_VARIANT") != null) {
-    config.mod_version += "-${System.getenv("BUILD_VARIANT")}"
-}
-
-version = config.mod_version
-group= "com.mod-buildcraft"
-archivesBaseName = "buildcraft" // the name that all artifacts will use as a base. artifacts names follow this pattern: [baseName]-[appendix]-[version]-[classifier].[extension]
-
-ext.mcModInfo = new groovy.json.JsonSlurper().parse(file("buildcraft_resources/mcmod.info"))
-ext.priv = parseConfig(file('private.properties'))
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
-dependencies {
-    // Testing
-    testCompile "junit:junit:4.12"
-}
-
-minecraft {
-    version = config.mc_version + "-" + config.forge_version
-    runDir = "run"
-
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not always work.
-    // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = config.mappings_version
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-
-    def addVersionDetails = !Boolean.getBoolean("release")
-
-    // Git versioning stuffs
-    if (grgit != null) {
-        String gitDir;
-        if (rootProject == project) {
-            gitDir = "$projectDir";
-        } else {
-            File dotGit = project.file(".git");
-            if (dotGit.isDirectory()) {
-                gitDir = dotGit;
-            } else {
-                gitDir = rootProject.file(".git/modules/BuildCraft").toString()
-            }
-        }
-        def repo = grgit.open(dir: gitDir)
-        replace "\${git_commit_hash}", repo.head().id
-        // This is very ugly: we need 7(!) \ to produce a single \ in the final one. 
-        replace "\${git_commit_msg}", repo.head().fullMessage.replace("\"", "\\\\\\\"").split("\n")[0]
-        replace "\${git_commit_author}", repo.head().author.name
-        replace "\${git_branch}", repo.branch.current().getName()
-        if (addVersionDetails) {
-            // Always use the compat commit for the version.
-            project.version += "-" + grgit.open(dir: project.rootDir).head().id.toString().substring(0, 12)
-        }
-    } else {
-        if (addVersionDetails) {
-            project.version += "-SNAPSHOT"
-        }
-    }
-
-    // replacing stuff in the source
-    replace "\$version", project.version
-    replace "\${mcversion}", version
-    // Replace @Mod.acceptedMinecraftVersions specially as it has to be a valid version in a dev environment :/
-    replace "(gradle_replace_mcversion,)", "[" + version + "]"
-    replace "(gradle_replace_forgeversion,)", "[" + config.forge_version + ",)"
-}
-
-task printVersion {
-    description = "Prints out the actual version used. Useful for testing the buildscript. (Add -Drelease=true to force this to the version specified in build.properties)"
-    doLast {
-        println "Version = " + project.version
-    }
-}
-
-// configure  the source folders
 sourceSets {
     main {
         java {
-            srcDir "common"
-            srcDir "common_old_license"
-            srcDir "sub_projects/expression/src/main/java"
-            srcDir "sub_projects/expression/src/autogen/java"
-            // srcDir "src_old_license"
+            srcDirs = ['common', 'common_old_license', 'BuildCraftAPI/api', "$expressionDir/src/main/java"]
+            srcDir expressionAutogen
+            srcDir buildInfoDir
         }
         resources {
-            srcDir "buildcraft_resources"
-            srcDir "BuildCraft-Localization"
-            exclude "**/.md" // exclude readme from localization repo
-            srcDir "BuildCraftGuide/guide_resources"
-            exclude "pack.png" // exclude from the guide repo
-            exclude "pack.mcmeta" // exclude from the guide repo
-        }
-    }
-    api {
-        java {
-            srcDir "BuildCraftAPI/api"
+            srcDirs = ['buildcraft_resources', 'BuildCraft-Localization', 'BuildCraftGuide/guide_resources']
+            exclude '**/*.md', 'pack.png', 'pack.mcmeta'
         }
     }
     test {
         java {
-            srcDir "src/test/java"
-            srcDir "sub_projects/expression/src/test/java"
+            srcDirs = ['src/test/java', "$expressionDir/src/test/java"]
         }
     }
-}
-
-if (gradle.startParameter.taskNames.contains("checkstyle")) {
-    checkstyle {
-        configFile = file("guidelines/buildcraft.checkstyle")
-        toolVersion = "7.2"
-    }
-
-    task checkstyle {}
-    tasks["checkstyle"].dependsOn checkstyleApi
-    tasks["checkstyle"].dependsOn checkstyleMain
-
-    tasks["checkstyleApi"].enabled = true
-    tasks["checkstyleMain"].enabled = true
-    tasks["checkstyleTest"].enabled = false
-}
-
-task setupSubProjects(dependsOn: "sub_projects:expression:generateSources") {
-    // Just an inter-dependency task
-}
-
-eclipseClasspath.dependsOn setupSubProjects
-ideaModule.dependsOn setupSubProjects
-compileJava.dependsOn setupSubProjects
-
-runClient.jvmArgs += "-Dbuildcraft.dev=true"
-for (String s :"-XX:+UseG1GC -Xmx2G -Xms2G -Dsun.rmi.dgc.server.gcInterval=2147483646 -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M".split(" ")) {
-    runClient.jvmArgs += s
-}
-
-// Obfuscated Jar location
-ext.jarFile = zipTree(jar.archivePath)
-
-// Add API dir to the IDEA module
-idea.module.sourceDirs += sourceSets.api.java.srcDirs
-
-processResources
-{
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        // replace version and mcversion
-        // ${version}   and    ${mcversion}    are the exact strings being replaced
-        expand "version":project.version, "mcversion":project.minecraft.version
-    }
-
-    // copy everything else, that's not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-        exclude 'pack.mcmeta'
-        exclude 'pack.png'
-    }
-}
-
-compileJava {
-    options.compilerArgs << "-Xmaxerrs" << "2000"
-    options.compilerArgs << "-Xmaxwarns" << "2"
-    options.compilerArgs << "-Xlint:all"
-    options.compilerArgs << "-Xdiags:verbose"
-    options.compilerArgs << "-encoding" << "UTF-8"
-}
-
-javadoc {
-    options.setUse(true)
-    options.addStringsOption("Xmaxerrs").setValue(["2000"])
-    options.addStringsOption("Xmaxwarns").setValue(["2000"])
-    options.addStringsOption("Xdoclint:all")
-    options.setEncoding("UTF-8")
-}
-
-// --------------------
-// extra jar section
-// -------------------
-
-def createMCModInfo(String taskName)
-{
-    return new File("$projectDir/build/processing/" + taskName + "/mcmod.info")
-}
-
-def writeMCModInfo(String taskName, int... ids)
-{
-    File temp = createMCModInfo(taskName)
-    temp.parentFile.mkdirs()
-    if (temp.exists())
-        temp.delete()
-    temp.createNewFile()
-    def elements = []
-    for (int id : ids) {
-        elements += ext.mcModInfo[id];
-    }
-    String prettyPrinted = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(elements))
-    prettyPrinted = prettyPrinted.replace("\$version", project.version)
-    prettyPrinted = prettyPrinted.replace("\${mcversion}", project.minecraft.version)
-    temp.write(prettyPrinted)
-    return temp
-}
-
-def parseConfig(File config) {
-    if (!config.exists())
-        return null
-    config.withReader {
-        def prop = new Properties()
-        prop.load(it)
-        return (new ConfigSlurper().parse(prop))
-    }
-}
-
-def unzippedSourceJar = new File("$projectDir/build/processing/tasks/unzipped_src_jar/unzip")
-def libsDir = new File(System.getenv("LIBS_DIR") ?: "$projectDir/build/libs/", version)
-def modulesDir = new File(libsDir, "modules")
-def modulesDirSrc = new File(modulesDir, "src")
-
-// forge (or gradle?) creates a special sourceJar which has been processed
-// This task unzips that created jar, so that partial source jars can be created.
-task unzipSourceJar(type: Copy, dependsOn: sourceJar) {
-    from (zipTree(sourceJar.archivePath)) {
-        include "**"
-    }
-    into unzippedSourceJar
-}
-
-// add api classes to javadoc
-javadoc {
-    source += sourceSets.api.allSource
-}
-
-// add a javadoc jar
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    destinationDir = libsDir
-    appendix = "main"
-    classifier = 'javadoc'
-    from '$projectDir/build/docs/javadoc'
-}
-
-// because the normal output has been made to be obfuscated
-task deobfJar(type: Jar) {
-    destinationDir = libsDir
-    appendix = "main"
-    from sourceSets.main.output
-    from sourceSets.api.output
-    classifier = 'dev'
-}
-
-task writeModInfos() {
-    outputs.upToDateWhen { false }
-    doLast {
-        writeMCModInfo("lib", 0)
-        writeMCModInfo("core", 0, 1)
-        writeMCModInfo("builders", 2)
-        writeMCModInfo("energy", 3)
-        writeMCModInfo("factory", 4)
-        writeMCModInfo("silicon", 5)
-        writeMCModInfo("transport", 6)
-        writeMCModInfo("robotics", 7)
-    }
-}
-
-task apiJar(type: Jar, dependsOn: [reobfJar, writeModInfos]) {
-    destinationDir = modulesDir
-    appendix = "api"
-
-    from(project.ext.jarFile) {
-        includes.addAll(["buildcraft/api/**"])
-    }
-}
-
-task apiSrcJar(type: Jar, dependsOn: [build, unzipSourceJar]) {
-    destinationDir = modulesDirSrc
-    appendix = "api"
-    classifier = 'sources'
-    from sourceSets.api.allSource
-}
-
-task libJar(type: Jar, dependsOn: [reobfJar, writeModInfos]) {
-    destinationDir = modulesDir
-    appendix = "lib"
-
-    from(createMCModInfo("lib").parentFile)
-    from(project.ext.jarFile) {
-        includes.addAll(["assets/buildcraft/**", "assets/buildcraftlib/**", "data/buildcraftlib/**", "buildcraft/lib/**", "buildcraft/api/**", "changelog/**", "LICENSE**", "versions.txt"])
-    }
-}
-
-task libSrcJar(type: Jar, dependsOn: [build, unzipSourceJar]) {
-    destinationDir = modulesDirSrc
-    appendix = "lib"
-    classifier = "sources"
-
-    from sourceSets.api.allSource
-    from (unzippedSourceJar) {
-        includes.addAll(["assets/buildcraft/**", "assets/buildcraftlib/**", "buildcraft/lib/**", "LICENSE**"])
-    }
-}
-
-task coreJar(type: Jar, dependsOn: [reobfJar, writeModInfos]) {
-    destinationDir = modulesDir
-    appendix = "core"
-
-    from(createMCModInfo("core").parentFile)
-    from(project.ext.jarFile) {
-        includes.addAll(["assets/buildcraft/**", "assets/buildcraftlib/**", "data/buildcraftlib/**", "assets/buildcraftcore/**", "data/buildcraftcore/**", "buildcraft/lib/**", "buildcraft/core/**", "buildcraft/api/**", "changelog/**", "LICENSE**", "versions.txt"])
-    }
-}
-
-for (String module : ["builders", "energy", "factory", "silicon", "transport", "robotics"]) {
-    task (module + "Jar", type: Jar, dependsOn: [reobfJar, writeModInfos]) {
-        destinationDir = modulesDir
-        appendix = module
-
-        from(createMCModInfo(module).parentFile)
-        from(project.ext.jarFile) {
-            includes.addAll(["assets/buildcraft$module/**", "data/buildcraft$module/**", "buildcraft/$module/**", "LICENSE"])
+    // Generates the expression library's NodeFunc*/NodeType* sources (was sub_projects:expression:generateSources)
+    expressionGenerator {
+        java {
+            srcDirs = ["$expressionDir/src/generator/java"]
+        }
+        resources {
+            srcDirs = ["$expressionDir/src/generator/resources"]
         }
     }
-}
-
-task mainJar(type: Jar, dependsOn:reobfJar) {
-    destinationDir = libsDir
-    appendix = "main"
-
-    from(project.ext.jarFile) {
-        includes.addAll("**")
-    }
-}
-
-task mainSrcJar(type: Jar, dependsOn:[reobfJar, unzipSourceJar]) {
-    destinationDir = libsDir
-    appendix = "main"
-    classifier = "sources"
-
-    from sourceSets.api.allSource
-    from (unzippedSourceJar) {
-        includes.add("**")
-    }
-}
-
-// Configure BC compat
-if (rootProject != project) {
-    rootProject.allJar.
-        from (project.ext.jarFile) {
-            includes.addAll("**")
-            exclude("mcmod.info")
-        }
-    rootProject.allJar.dependsOn(mainJar)
-
-    rootProject.allSrcJar.
-        from (unzippedSourceJar) {
-            includes.add("**")
-            exclude("mcmod.info")
-        }
-    rootProject.allJar.dependsOn(unzipSourceJar)
-}
-
-// add api classes to main package
-jar {
-    from sourceSets.api.output
-}
-
-// make sure all of these happen when we run build
-build.dependsOn mainSrcJar, apiJar, deobfJar, javadocJar
-
-// --------------------
-// maven section
-// -------------------
-
-// create the deployerJars dependency configuration
-configurations {
-    deployerJars
-    sshAntTask
 }
 
 dependencies {
-    // dependency in deployerJars, for maven deployment. see definition in mavenDeployer{} below
-    deployerJars "org.apache.maven.wagon:wagon-ssh:2.2"
-    sshAntTask "org.apache.ant:ant-jsch:1.9.6", "com.jcraft:jsch:0.1.53"
-}
-// specify artifacts to be uploaded
-artifacts {
-    // the default jar is already here by default
-    archives sourceJar
-    archives javadocJar
-
-    // Modules
-    archives apiJar
-    archives libJar
-    archives coreJar
-    archives buildersJar
-    archives energyJar
-    archives factoryJar
-    archives siliconJar
-    archives transportJar
-    archives roboticsJar
-    archives mainJar
-}
-
-def sftp(String subPath, Closure antFileset = {}) {
-    ant {
-        taskdef(name: 'scp', classname: 'org.apache.tools.ant.taskdefs.optional.ssh.Scp',
-                classpath: configurations.sshAntTask.asPath)
-        Map sftpArgs = [
-                               verbose : 'yes',
-                               todir : priv.username + "@" + priv.host + ":" + priv.remotedir + version + "/" + subPath,
-                               port: priv.port,
-                               password: priv.password,
-                               sftp: true,
-                               trust: 'yes'
-        ]
-        delegate.scp(sftpArgs) {
-            antFileset.delegate = delegate
-            antFileset()
-        }
+    implementation cleanroom.userdev('0.6.10') {
+        // Dev runs with -Pbc_with_renderers: Celeritas reads vanilla fields its AT opens in production
+        def celeritasAt = file('../celeritas/forge122/src/main/resources/META-INF/celeritas_at.cfg')
+        if (celeritasAt.exists()) accessTransformers.from(celeritasAt)
     }
+    // LWJGL 2 utility classes (org.lwjgl.util.glu.GLU, org.lwjgl.util.vector) that Cleanroom ships through LWJGLY
+    compileOnly 'com.cleanroommc:lwjgly:1.0.0'
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
-publishing {
-    repositories {
-        maven {
-            url System.getenv("MAVEN_DIR") ?: "$projectDir/build/maven"
-        }
-    }
-    publications {
-        pub_apiJar(MavenPublication) {
-            groupId "com.mod-buildcraft"
-            artifactId "buildcraft-api"
-            version project.version
-
-            artifact apiJar
-        }
-        pub_apiSrcJar(MavenPublication) {
-            groupId "com.mod-buildcraft"
-            artifactId "buildcraft-api"
-            version project.version
-
-            artifact apiSrcJar
-        }
-        pub_libJar(MavenPublication) {
-            groupId "com.mod-buildcraft"
-            artifactId "buildcraft-lib"
-            version project.version
-
-            artifact libJar
-        }
-        pub_libSrcJar(MavenPublication) {
-            groupId "com.mod-buildcraft"
-            artifactId "buildcraft-lib"
-            version project.version
-
-            artifact libSrcJar
-        }
-        pub_mainJar(MavenPublication) {
-            groupId "com.mod-buildcraft"
-            artifactId "buildcraft-main"
-            version project.version
-
-            artifact mainJar
-        }
-        pub_mainSrcJar(MavenPublication) {
-            groupId "com.mod-buildcraft"
-            artifactId "buildcraft-main"
-            version project.version
-
-            artifact mainSrcJar
-        }
-    }
-}
-
-task upload(dependsOn: build) {
-    description = 'Update files on remote server.'
+def generateExpressionSources = tasks.register('generateExpressionSources', JavaExec) {
+    description = 'Generates the expression library sources (NodeFunc*, NodeType*, FunctionContext*).'
+    classpath = sourceSets.expressionGenerator.runtimeClasspath
+    mainClass = 'buildcraft.meta.generate.AutoGenerator'
+    def out = expressionAutogen.get().asFile
+    inputs.files(sourceSets.expressionGenerator.allSource)
+    outputs.dir(out)
     doFirst {
-        sftp("") {
-            fileset(dir: libsDir)
-        }
-        sftp("modules") {
-            fileset(dir: 'modules')
+        project.delete(out)
+        out.mkdirs()
+    }
+    args '-out', out.absolutePath, '-run', '-quiet'
+}
+
+def gitOutput = { String... args ->
+    try {
+        def proc = (['git'] + args.toList()).execute(null, rootDir)
+        def text = proc.text.trim()
+        return proc.waitFor() == 0 ? text : 'unknown'
+    } catch (Exception ignored) {
+        return 'unknown'
+    }
+}
+
+// Replaces the ForgeGradle source token replacement ($version, ${git_commit_hash}, ...) in BCLib
+def generateBuildInfo = tasks.register('generateBuildInfo') {
+    description = 'Writes buildcraft.lib.BCBuildInfo (version and git details as compile-time constants).'
+    def out = buildInfoDir.get().file('buildcraft/lib/BCBuildInfo.java').asFile
+    def info = [
+            VERSION          : version.toString(),
+            MC_VERSION       : mcVersion,
+            FORGE_VERSION    : forgeVersion,
+            GIT_BRANCH       : gitOutput('rev-parse', '--abbrev-ref', 'HEAD'),
+            GIT_COMMIT_HASH  : gitOutput('rev-parse', 'HEAD'),
+            GIT_COMMIT_MSG   : gitOutput('log', '-1', '--format=%s'),
+            GIT_COMMIT_AUTHOR: gitOutput('log', '-1', '--format=%an'),
+    ]
+    inputs.properties(info)
+    outputs.file(out)
+    doLast {
+        def escape = { String s -> s.replace('\\', '\\\\').replace('"', '\\"') }
+        def body = info.collect { k, v -> "    public static final String ${k} = \"${escape(v)}\";" }.join('\n')
+        out.parentFile.mkdirs()
+        out.setText("""package buildcraft.lib;
+
+/** Generated by the build (generateBuildInfo). */
+public final class BCBuildInfo {
+${body}
+
+    private BCBuildInfo() {}
+}
+""", 'UTF-8')
+    }
+}
+
+tasks.named('compileJava') {
+    dependsOn(generateExpressionSources, generateBuildInfo)
+}
+tasks.named('sourcesJar') {
+    dependsOn(generateExpressionSources, generateBuildInfo)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.addAll(['-Xmaxerrs', '2000'])
+}
+
+def modVersion = version.toString()
+processResources {
+    inputs.property('version', modVersion)
+    inputs.property('mcversion', mcVersion)
+    filesMatching('mcmod.info') {
+        expand 'version': modVersion, 'mcversion': mcVersion
+    }
+}
+
+test {
+    useJUnit()
+}
+
+jar {
+    archiveClassifier = 'dev'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    finalizedBy(tasks.named('reobfJar'))
+}
+
+tasks.named('reobfJar').configure {
+    archiveClassifier.set('')
+    doLast {
+        def jarFile = outputs.files.files.find { it.name.endsWith('.jar') }
+        def fs = java.nio.file.FileSystems.newFileSystem(jarFile.toPath(), (ClassLoader) null)
+        try {
+            // The renamer's decompiler hint file has no use in a mod jar
+            java.nio.file.Files.deleteIfExists(fs.getPath('fernflower_abstract_parameter_names.txt'))
+        } finally {
+            fs.close()
         }
     }
 }
 
-
-if (ext.priv == null)
-    upload.enabled = false
-
-uploadArchives {
-    // make sure this happens after reobfuscation
-    //dependsOn "reobf"
-
-    repositories {
-        add project.repositories.mavenLocal()
+// Dev client: run/cleanroom-client with the dev jar in mods/ (classes on the classpath would load
+// BuildCraft twice). -Pbc_with_renderers=true also copies the gl46core and Celeritas dev jars.
+def runDir = layout.projectDirectory.dir('run/cleanroom-client')
+tasks.register('prepareBuildCraftRun', Copy) {
+    dependsOn(tasks.named('jar'))
+    from(tasks.named('jar').flatMap { it.archiveFile })
+    if ((findProperty('bc_with_renderers') ?: 'false').toString().toBoolean()) {
+        // Newest dev jar of each (MCP-named; Celeritas' production jar also ends in -dev.jar)
+        def newest = { String dir, String suffix ->
+            provider {
+                file(dir).listFiles({ d, n -> n.endsWith(suffix) } as FilenameFilter)
+                        ?.max { it.lastModified() } ?: []
+            }
+        }
+        from(newest('../gl46core/build/libs', '-dev.jar'))
+        from(newest('../celeritas/forge122/build/libs', '-dev-dev.jar'))
+    }
+    def modsDir = runDir.dir('mods').asFile
+    into(modsDir)
+    doFirst {
+        modsDir.listFiles({ d, n -> n.endsWith('.jar') } as FilenameFilter)?.each { it.delete() }
     }
 }
 
+tasks.withType(RunMinecraft).configureEach {
+    dependsOn(tasks.named('jar'))
+    if (name == 'runClient') {
+        dependsOn(tasks.named('prepareBuildCraftRun'))
+        workingDir(runDir)
+        jvmArgs '--enable-native-access=ALL-UNNAMED',
+                '--add-exports', 'java.base/jdk.internal.misc=ALL-UNNAMED',
+                '-Dbuildcraft.dev=true', '-Xmx3G'
+        def extraArgs = findProperty('extra_jvm_args')
+        if (extraArgs != null && !extraArgs.toString().trim().isEmpty()) {
+            jvmArgs(*extraArgs.toString().trim().split('\\s+'))
+        }
+        def classesDir = layout.buildDirectory.dir('classes/java/main')
+        def resourcesDir = layout.buildDirectory.dir('resources/main')
+        doFirst {
+            classpath = classpath.filter {
+                !it.canonicalPath.equals(classesDir.get().asFile.canonicalPath) &&
+                        !it.canonicalPath.equals(resourcesDir.get().asFile.canonicalPath) &&
+                        // com.mojang:patchy shades a Netty 4.1 Bootstrap that mismatches Cleanroom's Netty 4.2
+                        !it.name.startsWith('patchy-')
+            }
+        }
+    }
+}

@@ -194,13 +194,13 @@ public class BCSiliconRecipes {
 
         if (BCSiliconItems.plugLens != null) {
             for (EnumDyeColor colour : ColourUtil.COLOURS) {
-                String name = StringUtilBC.formatDirect("lens-regular-%s", colour.getUnlocalizedName());
+                String name = StringUtilBC.formatDirect("lens-regular-%s", colour.getTranslationKey());
                 IngredientStack stainedGlass = IngredientStack.of("blockGlass" + ColourUtil.getName(colour));
                 ImmutableSet<IngredientStack> input = ImmutableSet.of(stainedGlass);
                 ItemStack output = BCSiliconItems.plugLens.getStack(colour, false);
                 AssemblyRecipeRegistry.register(new AssemblyRecipeBasic(name, 500 * MjAPI.MJ, input, output));
 
-                name = StringUtilBC.formatDirect("lens-filter-%s", colour.getUnlocalizedName());
+                name = StringUtilBC.formatDirect("lens-filter-%s", colour.getTranslationKey());
                 output = BCSiliconItems.plugLens.getStack(colour, true);
                 input = ImmutableSet.of(stainedGlass, IngredientStack.of(new ItemStack(Blocks.IRON_BARS)));
                 AssemblyRecipeRegistry.register(new AssemblyRecipeBasic(name, 500 * MjAPI.MJ, input, output));

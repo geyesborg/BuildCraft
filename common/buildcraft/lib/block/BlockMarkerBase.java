@@ -71,7 +71,7 @@ public abstract class BlockMarkerBase extends BlockBCTile_Neptune implements ICu
 
     @Override
     public IBlockState getStateFromMeta(int meta) {
-        return getDefaultState().withProperty(BuildCraftProperties.BLOCK_FACING_6, EnumFacing.getFront(meta));
+        return getDefaultState().withProperty(BuildCraftProperties.BLOCK_FACING_6, EnumFacing.byIndex(meta));
     }
 
     @Override
@@ -86,7 +86,7 @@ public abstract class BlockMarkerBase extends BlockBCTile_Neptune implements ICu
 
     @Override
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer() {
+    public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
     }
 

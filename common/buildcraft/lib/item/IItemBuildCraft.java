@@ -25,7 +25,7 @@ public interface IItemBuildCraft {
 
     default void init() {
         Item thisItem = (Item) this;
-        thisItem.setUnlocalizedName(TagManager.getTag(id(), EnumTagType.UNLOCALIZED_NAME));
+        thisItem.setTranslationKey(TagManager.getTag(id(), EnumTagType.UNLOCALIZED_NAME));
         thisItem.setRegistryName(TagManager.getTag(id(), EnumTagType.REGISTRY_NAME));
         thisItem.setCreativeTab(CreativeTabManager.getTab(TagManager.getTag(id(), EnumTagType.CREATIVE_TAB)));
     }

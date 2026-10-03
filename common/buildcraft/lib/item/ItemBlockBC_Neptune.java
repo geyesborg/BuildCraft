@@ -32,7 +32,7 @@ public class ItemBlockBC_Neptune extends ItemBlock implements IItemBuildCraft {
     @Override
     public void addInformation(ItemStack stack, World world, List<String> tooltip, ITooltipFlag flags) {
         super.addInformation(stack, world, tooltip, flags);
-        String tipId = getUnlocalizedName(stack) + ".tip";
+        String tipId = getTranslationKey(stack) + ".tip";
         if (LocaleUtil.canLocalize(tipId)) {
             tooltip.add(TextFormatting.GRAY + LocaleUtil.localize(tipId));
         } else if (flags.isAdvanced()) {

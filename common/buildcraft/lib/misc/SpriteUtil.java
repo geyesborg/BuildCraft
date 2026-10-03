@@ -44,9 +44,9 @@ public class SpriteUtil {
     }
 
     /** Transforms the given {@link ResourceLocation}, adding ".png" to the end and prepending that
-     * {@link ResourceLocation#getResourcePath()} with "textures/", just like what {@link TextureMap} does. */
+     * {@link ResourceLocation#getPath()} with "textures/", just like what {@link TextureMap} does. */
     public static ResourceLocation transformLocation(ResourceLocation location) {
-        return new ResourceLocation(location.getResourceDomain(), "textures/" + location.getResourcePath() + ".png");
+        return new ResourceLocation(location.getNamespace(), "textures/" + location.getPath() + ".png");
     }
 
     @Nullable
@@ -68,7 +68,7 @@ public class SpriteUtil {
 
         try {
             if (!CACHED.containsKey(profile)) {
-                CACHED.put(profile, TileEntitySkull.updateGameprofile(profile));
+                CACHED.put(profile, TileEntitySkull.updateGameProfile(profile));
             }
             GameProfile p2 = CACHED.get(profile);
             if (p2 == null) {

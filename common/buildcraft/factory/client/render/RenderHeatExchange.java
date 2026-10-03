@@ -89,7 +89,7 @@ public class RenderHeatExchange extends TileEntitySpecialRenderer<TileHeatExchan
             return;
         }
 
-        Profiler profiler = Minecraft.getMinecraft().mcProfiler;
+        Profiler profiler = Minecraft.getMinecraft().profiler;
         profiler.startSection("bc");
         profiler.startSection("heat_exchange");
 
@@ -150,7 +150,7 @@ public class RenderHeatExchange extends TileEntitySpecialRenderer<TileHeatExchan
                     }
                     double otherStart = flip ? p0 : p1 - length * progress;
                     double otherEnd = flip ? p0 + length * progress : p1;
-                    Vec3d vDiff = new Vec3d(diff).addVector(x, y, z);
+                    Vec3d vDiff = new Vec3d(diff).add(x, y, z);
                     renderFlow(vDiff, face, bb, progressStart + 0.01, progressEnd - 0.01,
                         sectionEnd.smoothedTankInput.getFluidForRender(), 4, partialTicks);
                     renderFlow(vDiff, face.getOpposite(), bb, otherStart, otherEnd,

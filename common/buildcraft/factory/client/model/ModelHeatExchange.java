@@ -80,7 +80,7 @@ public class ModelHeatExchange extends ModelItemSimple {
             VAR_CONNECTED_UP.value = connectedUpDown && part == EnumExchangePart.END;
             VAR_CONNECTED_DOWN.value = connectedUpDown && part == EnumExchangePart.START;
             VAR_PART.value = part;
-            VAR_DIRECTION.value = EnumFacing.getHorizontal((i / 8) & 3);
+            VAR_DIRECTION.value = EnumFacing.byHorizontalIndex((i / 8) & 3);
             List<BakedQuad> quads = new ArrayList<>();
 
             for (MutableQuad quad : BCFactoryModels.HEAT_EXCHANGE_STATIC.getCutoutQuads()) {

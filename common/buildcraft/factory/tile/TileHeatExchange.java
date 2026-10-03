@@ -87,7 +87,7 @@ public class TileHeatExchange extends TileBC_Neptune implements ITickable, IDebu
         super.readFromNBT(nbt);
 
         NBTTagCompound nbtSection = nbt.getCompoundTag("section");
-        if (!nbtSection.hasNoTags()) {
+        if (!nbtSection.isEmpty()) {
             if (nbtSection.getBoolean("start")) {
                 section = new ExchangeSectionStart(this, nbtSection);
             } else {

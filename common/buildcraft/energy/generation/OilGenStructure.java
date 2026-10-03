@@ -226,7 +226,7 @@ public abstract class OilGenStructure {
         @Override
         protected void generateWithin(World world, Box intersect) {
             count = 0;
-            int segment = world.getChunkFromBlockCoords(start).getTopFilledSegment();
+            int segment = world.getChunk(start).getTopFilledSegment();
             BlockPos worldTop = new BlockPos(start.getX(), segment + 16, start.getZ());
             for (int y = segment; y >= start.getY(); y--) {
                 worldTop = worldTop.down();

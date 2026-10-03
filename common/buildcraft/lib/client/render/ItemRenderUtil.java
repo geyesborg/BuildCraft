@@ -225,7 +225,7 @@ public class ItemRenderUtil {
             if (regName == null) {
                 seed = 127;
             } else {
-                int regNameSeed = regName.getResourceDomain().hashCode() ^ regName.getResourcePath().hashCode();
+                int regNameSeed = regName.getNamespace().hashCode() ^ regName.getPath().hashCode();
                 seed = (regNameSeed & 0x7F_FF_FF_FF) | (((long) stack.getMetadata()) << 32);
             }
         }

@@ -27,13 +27,13 @@ import buildcraft.api.core.IZone;
 import buildcraft.lib.misc.NBTUtilBC;
 
 public class ZonePlan implements IZone {
-    private final HashMap<ChunkPos, ZoneChunk> chunkMapping = new HashMap<>();
+    private final HashMap<ChunkPos, ZoneChunk> loadedChunks = new HashMap<>();
 
     public ZonePlan() {}
 
     public ZonePlan(ZonePlan old) {
-        for (ChunkPos chunkPos : old.chunkMapping.keySet()) {
-            chunkMapping.put(chunkPos, new ZoneChunk(old.chunkMapping.get(chunkPos)));
+        for (ChunkPos chunkPos : old.loadedChunks.keySet()) {
+            loadedChunks.put(chunkPos, new ZoneChunk(old.loadedChunks.get(chunkPos)));
         }
     }
 
@@ -43,10 +43,10 @@ public class ZonePlan implements IZone {
         ChunkPos chunkId = new ChunkPos(xChunk, zChunk);
         ZoneChunk property;
 
-        if (!chunkMapping.containsKey(chunkId)) {
+        if (!loadedChunks.containsKey(chunkId)) {
             return false;
         } else {
-            property = chunkMapping.get(chunkId);
+            property = loadedChunks.get(chunkId);
             return property.get(x & 0xF, z & 0xF);
         }
     }
@@ -57,21 +57,21 @@ public class ZonePlan implements IZone {
         ChunkPos chunkId = new ChunkPos(xChunk, zChunk);
         ZoneChunk property;
 
-        if (!chunkMapping.containsKey(chunkId)) {
+        if (!loadedChunks.containsKey(chunkId)) {
             if (val) {
                 property = new ZoneChunk();
-                chunkMapping.put(chunkId, property);
+                loadedChunks.put(chunkId, property);
             } else {
                 return;
             }
         } else {
-            property = chunkMapping.get(chunkId);
+            property = loadedChunks.get(chunkId);
         }
 
         property.set(x & 0xF, z & 0xF, val);
 
         if (property.isEmpty()) {
-            chunkMapping.remove(chunkId);
+            loadedChunks.remove(chunkId);
         }
     }
 
@@ -84,7 +84,7 @@ public class ZonePlan implements IZone {
                 }
             }
         }
-        chunkMapping.forEach((chunkPos, zoneChunk) -> {
+        loadedChunks.forEach((chunkPos, zoneChunk) -> {
             List<Point2i> zoneChunkAll = zoneChunk.getAll();
             zoneChunkAll.forEach(p -> p.add(new Point2i(chunkPos.getXStart(), chunkPos.getZStart())));
             builder.addAll(zoneChunkAll);
@@ -99,22 +99,22 @@ public class ZonePlan implements IZone {
     }
 
     public boolean hasChunk(ChunkPos chunkPos) {
-        return chunkMapping.containsKey(chunkPos);
+        return loadedChunks.containsKey(chunkPos);
     }
 
     public Set<ChunkPos> getChunkPoses() {
-        return chunkMapping.keySet();
+        return loadedChunks.keySet();
     }
 
     public HashMap<ChunkPos, ZoneChunk> getChunkMapping() {
-        return chunkMapping;
+        return loadedChunks;
     }
 
     public void writeToNBT(NBTTagCompound nbt) {
         nbt.setTag(
-                "chunkMapping",
+                "loadedChunks",
                 NBTUtilBC.writeCompoundList(
-                        chunkMapping.entrySet().stream()
+                        loadedChunks.entrySet().stream()
                                 .map(entry -> {
                                     NBTTagCompound zoneChunkTag = new NBTTagCompound();
                                     entry.getValue().writeToNBT(zoneChunkTag);
@@ -127,11 +127,11 @@ public class ZonePlan implements IZone {
     }
 
     public void readFromNBT(NBTTagCompound nbt) {
-        NBTUtilBC.readCompoundList(nbt.getTag("chunkMapping"))
+        NBTUtilBC.readCompoundList(nbt.getTag("loadedChunks"))
                 .forEach(zoneChunkTag -> {
                     ZoneChunk chunk = new ZoneChunk();
                     chunk.readFromNBT(zoneChunkTag);
-                    chunkMapping.put(
+                    loadedChunks.put(
                             new ChunkPos(
                                     zoneChunkTag.getInteger("chunkX"),
                                     zoneChunkTag.getInteger("chunkZ")
@@ -150,7 +150,7 @@ public class ZonePlan implements IZone {
     public double distanceToSquared(BlockPos index) {
         double maxSqrDistance = Double.MAX_VALUE;
 
-        for (Map.Entry<ChunkPos, ZoneChunk> e : chunkMapping.entrySet()) {
+        for (Map.Entry<ChunkPos, ZoneChunk> e : loadedChunks.entrySet()) {
             double dx = (e.getKey().x << 4 + 8) - index.getX();
             double dz = (e.getKey().z << 4 + 8) - index.getZ();
 
@@ -174,13 +174,13 @@ public class ZonePlan implements IZone {
 
     @Override
     public BlockPos getRandomBlockPos(Random rand) {
-        if (chunkMapping.size() == 0) {
+        if (loadedChunks.size() == 0) {
             return null;
         }
 
-        int chunkId = rand.nextInt(chunkMapping.size());
+        int chunkId = rand.nextInt(loadedChunks.size());
 
-        for (Map.Entry<ChunkPos, ZoneChunk> e : chunkMapping.entrySet()) {
+        for (Map.Entry<ChunkPos, ZoneChunk> e : loadedChunks.entrySet()) {
             if (chunkId == 0) {
                 BlockPos i = e.getValue().getRandomBlockPos(rand);
                 int x = (e.getKey().x << 4) + i.getX();
@@ -196,20 +196,20 @@ public class ZonePlan implements IZone {
     }
 
     public ZonePlan readFromByteBuf(PacketBuffer buf) {
-        chunkMapping.clear();
+        loadedChunks.clear();
         int size = buf.readInt();
         for (int i = 0; i < size; i++) {
             ChunkPos key = new ChunkPos(buf.readInt(), buf.readInt());
             ZoneChunk value = new ZoneChunk();
             value.readFromByteBuf(buf);
-            chunkMapping.put(key, value);
+            loadedChunks.put(key, value);
         }
         return this;
     }
 
     public void writeToByteBuf(PacketBuffer buf) {
-        buf.writeInt(chunkMapping.size());
-        for (Map.Entry<ChunkPos, ZoneChunk> e : chunkMapping.entrySet()) {
+        buf.writeInt(loadedChunks.size());
+        for (Map.Entry<ChunkPos, ZoneChunk> e : loadedChunks.entrySet()) {
             buf.writeInt(e.getKey().x);
             buf.writeInt(e.getKey().z);
             e.getValue().writeToByteBuf(buf);

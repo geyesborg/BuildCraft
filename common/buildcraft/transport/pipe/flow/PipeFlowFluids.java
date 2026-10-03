@@ -944,8 +944,8 @@ public class PipeFlowFluids extends PipeFlow implements IFlowFluid, IDebuggable 
             double dy = offsetThis.y >= 0.5 ? -1 : offsetThis.y <= 0.5 ? 1 : 0;
             double dz = offsetThis.z >= 0.5 ? -1 : offsetThis.z <= 0.5 ? 1 : 0;
             if (dx != 0 || dy != 0 || dz != 0) {
-                offsetThis = offsetThis.addVector(dx, dy, dz);
-                offsetLast = offsetLast.addVector(dx, dy, dz);
+                offsetThis = offsetThis.add(dx, dy, dz);
+                offsetLast = offsetLast.add(dx, dy, dz);
             }
             return clientAmountThis > 0 | clientAmountLast > 0;
         }

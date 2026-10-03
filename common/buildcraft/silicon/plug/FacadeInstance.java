@@ -43,7 +43,7 @@ public class FacadeInstance implements IFacade {
 
     public static FacadeInstance readFromNbt(NBTTagCompound nbt) {
         NBTTagList list = nbt.getTagList("states", Constants.NBT.TAG_COMPOUND);
-        if (list.hasNoTags()) {
+        if (list.isEmpty()) {
             return FacadeInstance.createSingle(FacadeStateManager.defaultState, false);
         }
         FacadePhasedState[] states = new FacadePhasedState[list.tagCount()];

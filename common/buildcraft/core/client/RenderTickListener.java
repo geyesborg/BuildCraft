@@ -145,8 +145,8 @@ public class RenderTickListener {
         ItemStack offHand = StackUtil.asNonNull(player.getHeldItemOffhand());
         WorldClient world = mc.world;
 
-        mc.mcProfiler.startSection("bc");
-        mc.mcProfiler.startSection("renderWorld");
+        mc.profiler.startSection("bc");
+        mc.profiler.startSection("renderWorld");
 
         DetachedRenderer.fromWorldOriginPre(player, partialTicks);
 
@@ -161,8 +161,8 @@ public class RenderTickListener {
 
         DetachedRenderer.fromWorldOriginPost();
 
-        mc.mcProfiler.endSection();
-        mc.mcProfiler.endSection();
+        mc.profiler.endSection();
+        mc.profiler.endSection();
     }
 
     private static void renderMapLocation(@Nonnull ItemStack stack) {
@@ -205,7 +205,7 @@ public class RenderTickListener {
     }
 
     private static void renderMarkerConnector(WorldClient world, EntityPlayer player) {
-        Profiler profiler = Minecraft.getMinecraft().mcProfiler;
+        Profiler profiler = Minecraft.getMinecraft().profiler;
         profiler.startSection("marker");
         for (MarkerCache<?> cache : MarkerCache.CACHES) {
             profiler.startSection(cache.name);
@@ -216,7 +216,7 @@ public class RenderTickListener {
     }
 
     private static void renderMarkerCache(EntityPlayer player, MarkerSubCache<?> cache) {
-        Profiler profiler = Minecraft.getMinecraft().mcProfiler;
+        Profiler profiler = Minecraft.getMinecraft().profiler;
         profiler.startSection("compute");
         Set<LaserData_BC8> toRender = new HashSet<>();
         for (final BlockPos a : cache.getAllMarkers()) {

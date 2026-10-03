@@ -307,7 +307,7 @@ public final class WireSystem {
                 this.emitterSide = null;
             } else if (type == Type.EMITTER_SIDE) {
                 this.wirePart = null;
-                emitterSide = EnumFacing.getFront(buf.readInt());
+                emitterSide = EnumFacing.byIndex(buf.readInt());
             } else {
                 this.wirePart = null;
                 this.emitterSide = null;
@@ -326,7 +326,7 @@ public final class WireSystem {
                 this.emitterSide = null;
             } else if (type == Type.EMITTER_SIDE) {
                 this.wirePart = null;
-                emitterSide = EnumFacing.getFront(nbt.getInteger("emitterSide"));
+                emitterSide = EnumFacing.byIndex(nbt.getInteger("emitterSide"));
             } else {
                 this.wirePart = null;
                 this.emitterSide = null;

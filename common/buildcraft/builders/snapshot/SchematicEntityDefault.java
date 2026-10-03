@@ -52,7 +52,7 @@ public class SchematicEntityDefault implements ISchematicEntity {
     public static boolean predicate(SchematicEntityContext context) {
         ResourceLocation registryName = EntityList.getKey(context.entity);
         return registryName != null &&
-            RulesLoader.READ_DOMAINS.contains(registryName.getResourceDomain()) &&
+            RulesLoader.READ_DOMAINS.contains(registryName.getNamespace()) &&
             RulesLoader.getRules(
                 EntityList.getKey(context.entity),
                 context.entity.serializeNBT()

@@ -74,7 +74,7 @@ public class CreativeTabManager {
         }
 
         @Override
-        public ItemStack getTabIconItem() {
+        public ItemStack createIcon() {
             return item;
         }
     }

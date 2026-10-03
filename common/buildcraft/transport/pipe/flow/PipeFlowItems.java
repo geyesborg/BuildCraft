@@ -492,15 +492,15 @@ public final class PipeFlowItems extends PipeFlow implements IFlowItems {
         World world = holder.getPipeWorld();
         BlockPos pos = holder.getPipePos();
 
-        double x = pos.getX() + 0.5 + motion.getFrontOffsetX() * 0.5;
-        double y = pos.getY() + 0.5 + motion.getFrontOffsetY() * 0.5;
-        double z = pos.getZ() + 0.5 + motion.getFrontOffsetZ() * 0.5;
+        double x = pos.getX() + 0.5 + motion.getXOffset() * 0.5;
+        double y = pos.getY() + 0.5 + motion.getYOffset() * 0.5;
+        double z = pos.getZ() + 0.5 + motion.getZOffset() * 0.5;
         speed += 0.01;
         speed *= 2;
         EntityItem ent = new EntityItem(world, x, y, z, stack);
-        ent.motionX = motion.getFrontOffsetX() * speed;
-        ent.motionY = motion.getFrontOffsetY() * speed;
-        ent.motionZ = motion.getFrontOffsetZ() * speed;
+        ent.motionX = motion.getXOffset() * speed;
+        ent.motionY = motion.getYOffset() * speed;
+        ent.motionZ = motion.getZOffset() * speed;
 
         PipeEventItem.Drop drop = new PipeEventItem.Drop(holder, this, ent);
         holder.fireEvent(drop);

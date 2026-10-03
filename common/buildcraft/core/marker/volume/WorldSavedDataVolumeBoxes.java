@@ -73,7 +73,7 @@ public class WorldSavedDataVolumeBoxes extends WorldSavedData {
                 volumeBox.box.extendToEncompass(volumeBox.getHeld());
                 BlockPos lookingAt = new BlockPos(
                     player.getPositionVector()
-                        .addVector(0, player.getEyeHeight(), 0)
+                        .add(0, player.getEyeHeight(), 0)
                         .add(player.getLookVec().scale(volumeBox.getDist()))
                 );
                 volumeBox.box.extendToEncompass(lookingAt);

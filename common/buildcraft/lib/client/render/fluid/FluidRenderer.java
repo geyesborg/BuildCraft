@@ -208,7 +208,7 @@ public class FluidRenderer {
         if (fluid == null || fluid.getFluid() == null || amount <= 0) {
             return;
         }
-        Profiler prof = Minecraft.getMinecraft().mcProfiler;
+        Profiler prof = Minecraft.getMinecraft().profiler;
         prof.startSection("fluid");
         if (sideRender == null) {
             sideRender = DEFAULT_FACES;
@@ -491,7 +491,7 @@ public class FluidRenderer {
         }
 
         public TankSize shrink(double x, double y, double z) {
-            return new TankSize(min.addVector(x, y, z), max.subtract(x, y, z));
+            return new TankSize(min.add(x, y, z), max.subtract(x, y, z));
         }
 
         public TankSize shink(Vec3d by) {

@@ -25,11 +25,11 @@ public class VecUtil {
     public static final Vec3d VEC_ONE = new Vec3d(1, 1, 1);
 
     public static Vec3d add(Vec3d a, Vec3i b) {
-        return a.addVector(b.getX(), b.getY(), b.getZ());
+        return a.add(b.getX(), b.getY(), b.getZ());
     }
 
     public static Vec3d offset(Vec3d from, EnumFacing direction, double by) {
-        return from.addVector(direction.getFrontOffsetX() * by, direction.getFrontOffsetY() * by, direction.getFrontOffsetZ() * by);
+        return from.add(direction.getXOffset() * by, direction.getYOffset() * by, direction.getZOffset() * by);
     }
 
     public static double dot(Vec3d a, Vec3d b) {

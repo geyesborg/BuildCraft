@@ -30,9 +30,9 @@ public class ParticleUtil {
     }
 
     public static void showTempPower(World world, BlockPos pos, EnumFacing face, long microJoules) {
-        double x = pos.getX() + 0.5 + face.getFrontOffsetX() * 0.5;
-        double y = pos.getY() + 0.5 + face.getFrontOffsetY() * 0.5;
-        double z = pos.getZ() + 0.5 + face.getFrontOffsetZ() * 0.5;
+        double x = pos.getX() + 0.5 + face.getXOffset() * 0.5;
+        double y = pos.getY() + 0.5 + face.getYOffset() * 0.5;
+        double z = pos.getZ() + 0.5 + face.getZOffset() * 0.5;
 
         Vec3d startingMotion = new Vec3d(face.getDirectionVec());
         startingMotion = VecUtil.scale(startingMotion, 0.05);

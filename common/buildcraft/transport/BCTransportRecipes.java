@@ -102,7 +102,7 @@ public class BCTransportRecipes {
 
         if (BCTransportItems.wire != null) {
             for (EnumDyeColor color : ColourUtil.COLOURS) {
-                String name = StringUtilBC.formatDirect("wire-%s", color.getUnlocalizedName());
+                String name = StringUtilBC.formatDirect("wire-%s", color.getTranslationKey());
                 ImmutableSet<IngredientStack> input = ImmutableSet.of(IngredientStack.of("dustRedstone"),
                     IngredientStack.of(ColourUtil.getDyeName(color)));
                 AssemblyRecipeRegistry.register(new AssemblyRecipeBasic(name, 10_000 * MjAPI.MJ, input,
@@ -150,7 +150,7 @@ public class BCTransportRecipes {
         list.add(Ingredient.fromItem(from));
         list.add(CraftingHelper.getIngredient(additional));
 
-        IRecipe upgradeRecipe = new ShapelessRecipes(to.getRegistryName().getResourcePath(), new ItemStack(to), list)
+        IRecipe upgradeRecipe = new ShapelessRecipes(to.getRegistryName().getPath(), new ItemStack(to), list)
             .setRegistryName(new ResourceLocation(to.getRegistryName() + "_colorless"));
         ForgeRegistries.RECIPES.register(upgradeRecipe);
 

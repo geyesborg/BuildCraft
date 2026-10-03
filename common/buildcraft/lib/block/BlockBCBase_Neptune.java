@@ -52,7 +52,7 @@ public class BlockBCBase_Neptune extends Block {
 
         if (!id.isEmpty()) {
             // Init names from the tag manager
-            setUnlocalizedName(TagManager.getTag(id, EnumTagType.UNLOCALIZED_NAME));
+            setTranslationKey(TagManager.getTag(id, EnumTagType.UNLOCALIZED_NAME));
             setRegistryName(TagManager.getTag(id, EnumTagType.REGISTRY_NAME));
             setCreativeTab(CreativeTabManager.getTab(TagManager.getTag(id, EnumTagType.CREATIVE_TAB)));
         }
@@ -98,9 +98,9 @@ public class BlockBCBase_Neptune extends Block {
             IBlockWithFacing b = (IBlockWithFacing) this;
             IProperty<EnumFacing> prop = b.getFacingProperty();
             if (b.canFaceVertically()) {
-                state = state.withProperty(prop, EnumFacing.getFront(meta & 7));
+                state = state.withProperty(prop, EnumFacing.byIndex(meta & 7));
             } else {
-                state = state.withProperty(prop, EnumFacing.getHorizontal(meta & 3));
+                state = state.withProperty(prop, EnumFacing.byHorizontalIndex(meta & 3));
             }
         }
         return state;

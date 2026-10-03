@@ -57,7 +57,7 @@ public final class PluggableHolder {
     }
 
     public void readFromNbt(NBTTagCompound nbt) {
-        if (nbt.hasNoTags()) {
+        if (nbt.isEmpty()) {
             pluggable = null;
             return;
         }

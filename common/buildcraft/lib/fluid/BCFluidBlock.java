@@ -45,16 +45,16 @@ public class BCFluidBlock extends BlockFluidClassic {
 
     @Override
     public int getFlammability(IBlockAccess world, BlockPos pos, EnumFacing face) {
-        return blockMaterial.getCanBurn() ? 200 : 0;
+        return material.getCanBurn() ? 200 : 0;
     }
 
     @Override
     public int getFireSpreadSpeed(IBlockAccess world, BlockPos pos, EnumFacing face) {
-        return blockMaterial.getCanBurn() ? 200 : 0;
+        return material.getCanBurn() ? 200 : 0;
     }
 
     @Override
-    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
+    public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
         if (sticky) {
             entityIn.setInWeb();
         }

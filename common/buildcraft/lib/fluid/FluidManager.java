@@ -40,7 +40,7 @@ public class FluidManager {
         Material material = new BCMaterialFluid(fluid.getMapColour(), fluid.isFlammable());
         BCFluidBlock block = new BCFluidBlock(fluid, material);
         block.setRegistryName(Loader.instance().activeModContainer().getModId(), "fluid_block_" + fluid.getBlockName());
-        block.setUnlocalizedName("blockFluid_" + fluid.getBlockName());
+        block.setTranslationKey("blockFluid_" + fluid.getBlockName());
         block.setLightOpacity(fluid.getLightOpacity());
         HELPER.addForcedBlock(block);
         fluid.setBlock(block);

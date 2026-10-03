@@ -60,17 +60,17 @@ public class RegistryConfig {
     // #######################
 
     public static boolean isEnabled(Item item) {
-        return isEnabled(getCategory(item), item.getRegistryName().getResourcePath(),
-            item.getUnlocalizedName() + ".name");
+        return isEnabled(getCategory(item), item.getRegistryName().getPath(),
+            item.getTranslationKey() + ".name");
     }
 
     public static boolean isEnabled(Block block) {
-        return isEnabled(getCategory(block), block.getRegistryName().getResourcePath(),
-            block.getUnlocalizedName() + ".name");
+        return isEnabled(getCategory(block), block.getRegistryName().getPath(),
+            block.getTranslationKey() + ".name");
     }
 
-    public static boolean isEnabled(String category, String resourcePath, String langKey) {
-        return isEnabled(getActiveMod(), category, resourcePath, langKey);
+    public static boolean isEnabled(String category, String path, String langKey) {
+        return isEnabled(getActiveMod(), category, path, langKey);
     }
 
     public static boolean hasItemBeenDisabled(ResourceLocation loc) {
@@ -86,7 +86,7 @@ public class RegistryConfig {
      *         appropriate mod's config) */
     public static boolean hasObjectBeenDisabled(String category, ResourceLocation loc) {
         Set<String> locations = disabled.get(category);
-        return locations != null && locations.contains(loc.getResourcePath());
+        return locations != null && locations.contains(loc.getPath());
     }
 
     // #######################
@@ -105,24 +105,24 @@ public class RegistryConfig {
         }
     }
 
-    private static boolean isEnabled(ModContainer activeMod, String category, String resourcePath, String langKey) {
+    private static boolean isEnabled(ModContainer activeMod, String category, String path, String langKey) {
         Configuration config = modObjectConfigs.get(activeMod);
         if (config == null) {
             throw new RuntimeException("No config exists for the mod " + activeMod.getModId());
         }
-        Property prop = config.get(category, resourcePath, true);
+        Property prop = config.get(category, path, true);
         prop.setLanguageKey(langKey);
         prop.setRequiresMcRestart(true);
         prop.setRequiresWorldRestart(true);
         boolean isEnabled = prop.getBoolean(true);
         if (!isEnabled) {
-            setDisabled(category, resourcePath);
+            setDisabled(category, path);
         }
         return isEnabled;
     }
 
-    static void setDisabled(String category, String resourcePath) {
-        disabled.computeIfAbsent(category, k -> new HashSet<>()).add(resourcePath);
+    static void setDisabled(String category, String path) {
+        disabled.computeIfAbsent(category, k -> new HashSet<>()).add(path);
     }
 
     private static ModContainer getMod(String modid) {

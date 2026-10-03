@@ -30,7 +30,7 @@ public class BlockEngine_BC8 extends BlockEngineBase_BC8<EnumEngineType> {
     }
 
     @Override
-    public String getUnlocalizedName(EnumEngineType engine) {
+    public String getTranslationKey(EnumEngineType engine) {
         return TagManager.getTag("block.engine.bc." + engine.unlocalizedTag, EnumTagType.UNLOCALIZED_NAME);
     }
 }

@@ -38,7 +38,7 @@ public class ItemBlockBCMulti extends ItemBlockBC_Neptune {
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack) {
-        return super.getUnlocalizedName() + "." + this.nameFunction.apply(stack);
+    public String getTranslationKey(ItemStack stack) {
+        return super.getTranslationKey() + "." + this.nameFunction.apply(stack);
     }
 }

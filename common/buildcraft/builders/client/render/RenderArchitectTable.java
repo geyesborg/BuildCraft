@@ -24,22 +24,22 @@ public class RenderArchitectTable extends TileEntitySpecialRenderer<TileArchitec
         if (!tile.markerBox) {
             return;
         }
-        Minecraft.getMinecraft().mcProfiler.startSection("bc");
-        Minecraft.getMinecraft().mcProfiler.startSection("architect_table");
+        Minecraft.getMinecraft().profiler.startSection("bc");
+        Minecraft.getMinecraft().profiler.startSection("architect_table");
 
         GL11.glPushMatrix();
         GL11.glTranslated(x - tile.getPos().getX(), y - tile.getPos().getY(), z - tile.getPos().getZ());
         RenderHelper.disableStandardItemLighting();
 
-        Minecraft.getMinecraft().mcProfiler.startSection("box");
+        Minecraft.getMinecraft().profiler.startSection("box");
         LaserBoxRenderer.renderLaserBoxStatic(tile.box, BuildCraftLaserManager.STRIPES_READ, true);
-        Minecraft.getMinecraft().mcProfiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
 
         RenderHelper.enableStandardItemLighting();
         GL11.glPopMatrix();
 
-        Minecraft.getMinecraft().mcProfiler.endSection();
-        Minecraft.getMinecraft().mcProfiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
     }
 
     @Override

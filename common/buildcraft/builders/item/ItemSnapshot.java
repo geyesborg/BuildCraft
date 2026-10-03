@@ -86,7 +86,7 @@ public class ItemSnapshot extends ItemBC_Neptune {
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack) {
+    public String getTranslationKey(ItemStack stack) {
         EnumItemSnapshotType type = EnumItemSnapshotType.getFromStack(stack);
         if (type.snapshotType == EnumSnapshotType.BLUEPRINT) {
             return "item.blueprintItem";

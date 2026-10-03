@@ -52,7 +52,7 @@ public class BlockTank extends BlockBCTile_Neptune implements ICustomPipeConnect
 
     @SideOnly(Side.CLIENT)
     @Override
-    public BlockRenderLayer getBlockLayer() {
+    public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
     }
 

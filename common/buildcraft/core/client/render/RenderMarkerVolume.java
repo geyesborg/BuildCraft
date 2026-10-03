@@ -44,9 +44,9 @@ public class RenderMarkerVolume extends TileEntitySpecialRenderer<TileMarkerVolu
     public void render(TileMarkerVolume marker, double tileX, double tileY, double tileZ, float partialTicks, int destroyStage, float alpha) {
         if (marker == null || !marker.isShowingSignals()) return;
 
-        Minecraft.getMinecraft().mcProfiler.startSection("bc");
-        Minecraft.getMinecraft().mcProfiler.startSection("marker");
-        Minecraft.getMinecraft().mcProfiler.startSection("volume");
+        Minecraft.getMinecraft().profiler.startSection("bc");
+        Minecraft.getMinecraft().profiler.startSection("marker");
+        Minecraft.getMinecraft().profiler.startSection("volume");
 
         DetachedRenderer.fromWorldOriginPre(Minecraft.getMinecraft().player, partialTicks);
         RenderHelper.disableStandardItemLighting();
@@ -67,9 +67,9 @@ public class RenderMarkerVolume extends TileEntitySpecialRenderer<TileMarkerVolu
         RenderHelper.enableStandardItemLighting();
         DetachedRenderer.fromWorldOriginPost();
 
-        Minecraft.getMinecraft().mcProfiler.endSection();
-        Minecraft.getMinecraft().mcProfiler.endSection();
-        Minecraft.getMinecraft().mcProfiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
+        Minecraft.getMinecraft().profiler.endSection();
     }
 
     private static void renderLaser(Vec3d min, Vec3d max, Axis axis) {
@@ -84,17 +84,17 @@ public class RenderMarkerVolume extends TileEntitySpecialRenderer<TileMarkerVolu
     private static Vec3d offset(Vec3d vec, EnumFacing face) {
         double by = 1 / 16.0;
         if (face == EnumFacing.DOWN) {
-            return vec.addVector(0, -by, 0);
+            return vec.add(0, -by, 0);
         } else if (face == EnumFacing.UP) {
-            return vec.addVector(0, by, 0);
+            return vec.add(0, by, 0);
         } else if (face == EnumFacing.EAST) {
-            return vec.addVector(by, 0, 0);
+            return vec.add(by, 0, 0);
         } else if (face == EnumFacing.WEST) {
-            return vec.addVector(-by, 0, 0);
+            return vec.add(-by, 0, 0);
         } else if (face == EnumFacing.SOUTH) {
-            return vec.addVector(0, 0, by);
+            return vec.add(0, 0, by);
         } else {// North
-            return vec.addVector(0, 0, -by);
+            return vec.add(0, 0, -by);
         }
     }
 }

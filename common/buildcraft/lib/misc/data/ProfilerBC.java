@@ -11,7 +11,7 @@ public class ProfilerBC {
 
     @SideOnly(Side.CLIENT)
     public static ProfilerBC getClient() {
-        return new ProfilerBC(Minecraft.getMinecraft().mcProfiler);
+        return new ProfilerBC(Minecraft.getMinecraft().profiler);
     }
 
     private final Profiler profiler;

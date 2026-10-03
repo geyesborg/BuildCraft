@@ -57,7 +57,7 @@ public class BlockFrame extends BlockBCBase_Neptune {
     }
 
     @Override
-    public BlockRenderLayer getBlockLayer() {
+    public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
     }
 

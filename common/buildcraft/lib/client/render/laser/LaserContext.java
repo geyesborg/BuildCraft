@@ -39,7 +39,7 @@ public class LaserContext {
 
         final double angleY, angleZ;
 
-        double realLength = delta.lengthVector();
+        double realLength = delta.length();
         length = realLength / data.scale;
         angleZ = Math.PI - Math.atan2(dz, dx);
         double rl_squared = realLength * realLength;

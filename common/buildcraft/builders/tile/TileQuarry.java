@@ -672,7 +672,7 @@ public class TileQuarry extends TileBC_Neptune implements ITickable, IDebuggable
                         max, Axis.Z, drillPos.z + 0.5
                     ), 0.25
                 ), BoundingBoxUtil.makeFrom(
-                    drillPos.addVector(0.5, 0, 0.5), VecUtil.replaceValue(drillPos, Axis.Y, max.y).addVector(
+                    drillPos.add(0.5, 0, 0.5), VecUtil.replaceValue(drillPos, Axis.Y, max.y).add(
                         0.5, 0, 0.5
                     ), 0.25
                 )

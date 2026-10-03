@@ -67,7 +67,7 @@ public abstract class BCSiliconProxy implements IGuiHandler {
             }
         }
         if (id == BCSiliconGuis.GATE.ordinal()) {
-            EnumFacing gateSide = EnumFacing.getFront(data);
+            EnumFacing gateSide = EnumFacing.byIndex(data);
             if (tile instanceof IPipeHolder) {
                 IPipeHolder holder = (IPipeHolder) tile;
                 PipePluggable plug = holder.getPluggable(gateSide);
@@ -146,7 +146,7 @@ public abstract class BCSiliconProxy implements IGuiHandler {
                 }
             }
             if (id == BCSiliconGuis.GATE.ordinal()) {
-                EnumFacing gateSide = EnumFacing.getFront(data);
+                EnumFacing gateSide = EnumFacing.byIndex(data);
                 if (tile instanceof IPipeHolder) {
                     IPipeHolder holder = (IPipeHolder) tile;
                     PipePluggable plug = holder.getPluggable(gateSide);

@@ -70,7 +70,7 @@ public class RenderDistiller extends TileEntitySpecialRenderer<TileDistiller_BC8
             return;
         }
 
-        Profiler profiler = Minecraft.getMinecraft().mcProfiler;
+        Profiler profiler = Minecraft.getMinecraft().profiler;
         profiler.startSection("bc");
         profiler.startSection("distiller");
 
@@ -172,7 +172,7 @@ public class RenderDistiller extends TileEntitySpecialRenderer<TileDistiller_BC8
         }
 
         public Size shrink(double by) {
-            return new Size(min.addVector(by, by, by), max.subtract(by, by, by));
+            return new Size(min.add(by, by, by), max.subtract(by, by, by));
         }
 
         public Size rotateY() {

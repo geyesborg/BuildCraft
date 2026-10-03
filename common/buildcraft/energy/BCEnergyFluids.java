@@ -113,7 +113,7 @@ public class BCEnergyFluids {
         def.setMapColour(getMapColor(texDark));
         def.setFlammable(flammable);
         def.setHeat(heat);
-        def.setUnlocalizedName(name);
+        def.setTranslationKey(name);
         def.setTemperature(300 + 20 * heat);
         def.setViscosity(tempAdjustedViscosity);
         def.setDensity(boilAdjustedDensity);

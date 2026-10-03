@@ -136,9 +136,9 @@ public enum PipeBaseModelGenStandard implements IPipeBaseModelGen {
         QUADS_COLOURED[1] = new MutableQuad[6][8];
         for (EnumFacing side : EnumFacing.VALUES) {
             center = new Point3f(//
-                side.getFrontOffsetX() * 0.375f, //
-                side.getFrontOffsetY() * 0.375f, //
-                side.getFrontOffsetZ() * 0.375f //
+                side.getXOffset() * 0.375f, //
+                side.getYOffset() * 0.375f, //
+                side.getZOffset() * 0.375f //
             );
             radius = new Vector3f(//
                 side.getAxis() == Axis.X ? 0.125f : 0.25f, //
@@ -174,9 +174,9 @@ public enum PipeBaseModelGenStandard implements IPipeBaseModelGen {
         MutableQuad[] quads = new MutableQuad[(extended ? 16 : 8)];
 
         Tuple3f center = new Point3f(
-            0.5f + side.getFrontOffsetX() * 0.375f, //
-            0.5f + side.getFrontOffsetY() * 0.375f, //
-            0.5f + side.getFrontOffsetZ() * 0.375f //
+            0.5f + side.getXOffset() * 0.375f, //
+            0.5f + side.getYOffset() * 0.375f, //
+            0.5f + side.getZOffset() * 0.375f //
         );
         Tuple3f radius = new Vector3f(
             side.getAxis() == Axis.X ? 0.125f : 0.25f, //
@@ -215,9 +215,9 @@ public enum PipeBaseModelGenStandard implements IPipeBaseModelGen {
             quad.setDiffuse(quad.normalvf());
             if (isColour) {
                 quad.translated(
-                    0.01 * -face.getFrontOffsetX(), //
-                    0.01 * -face.getFrontOffsetY(), //
-                    0.01 * -face.getFrontOffsetZ()//
+                    0.01 * -face.getXOffset(), //
+                    0.01 * -face.getYOffset(), //
+                    0.01 * -face.getZOffset()//
                 );
             }
 
@@ -232,9 +232,9 @@ public enum PipeBaseModelGenStandard implements IPipeBaseModelGen {
                 side.getAxis() == Axis.Z ? extensionLength / 2 : radius.getZ()//
             );
             center = new Point3f(
-                0.5f + side.getFrontOffsetX() * (0.5f + extensionLength / 2), //
-                0.5f + side.getFrontOffsetY() * (0.5f + extensionLength / 2), //
-                0.5f + side.getFrontOffsetZ() * (0.5f + extensionLength / 2)
+                0.5f + side.getXOffset() * (0.5f + extensionLength / 2), //
+                0.5f + side.getYOffset() * (0.5f + extensionLength / 2), //
+                0.5f + side.getZOffset() * (0.5f + extensionLength / 2)
             );
             types = new UvFaceData[] { //
                 new UvFaceData(0.25, 1 - extensionLength, 0.75, 1), //
@@ -252,9 +252,9 @@ public enum PipeBaseModelGenStandard implements IPipeBaseModelGen {
                 quad.setDiffuse(quad.normalvf());
                 if (isColour) {
                     quad.translated(
-                        0.01 * -face.getFrontOffsetX(), //
-                        0.01 * -face.getFrontOffsetY(), //
-                        0.01 * -face.getFrontOffsetZ()//
+                        0.01 * -face.getXOffset(), //
+                        0.01 * -face.getYOffset(), //
+                        0.01 * -face.getZOffset()//
                     );
                 }
 

@@ -73,7 +73,7 @@ public class ItemSchematicSingle extends ItemBC_Neptune {
         if (player.isSneaking()) {
             NBTTagCompound itemData = NBTUtilBC.getItemData(stack);
             itemData.removeTag(NBT_KEY);
-            if (itemData.hasNoTags()) {
+            if (itemData.isEmpty()) {
                 stack.setTagCompound(null);
             }
             stack.setItemDamage(DAMAGE_CLEAN);
@@ -91,7 +91,7 @@ public class ItemSchematicSingle extends ItemBC_Neptune {
         if (player.isSneaking()) {
             NBTTagCompound itemData = NBTUtilBC.getItemData(StackUtil.asNonNull(stack));
             itemData.removeTag(NBT_KEY);
-            if (itemData.hasNoTags()) {
+            if (itemData.isEmpty()) {
                 stack.setTagCompound(null);
             }
             stack.setItemDamage(DAMAGE_CLEAN);

@@ -18,9 +18,9 @@ public class MutableQuadTest {
                 MutableQuad q = new MutableQuad();
                 q.vertex_0.positionf(vec.getX(), vec.getY(), vec.getZ());
                 q.rotate(from, to, 0, 0, 0);
-                float ex = to.getFrontOffsetX();
-                float ey = to.getFrontOffsetY();
-                float ez = to.getFrontOffsetZ();
+                float ex = to.getXOffset();
+                float ey = to.getYOffset();
+                float ez = to.getZOffset();
 
                 Assert.assertEquals(from + " -> " + to + " [X]", ex, q.vertex_0.position_x, 0.001f);
                 Assert.assertEquals(from + " -> " + to + " [Y]", ey, q.vertex_0.position_y, 0.001f);

@@ -278,7 +278,7 @@ public abstract class TileEngineBase_BC8 extends TileBC_Neptune implements ITick
     @Override
     public void onNeighbourBlockChanged(Block block, BlockPos nehighbour) {
         super.onNeighbourBlockChanged(block, nehighbour);
-        isRedstonePowered = world.isBlockIndirectlyGettingPowered(getPos()) > 0;
+        isRedstonePowered = world.getRedstonePowerFromNeighbors(getPos()) > 0;
     }
 
     @Override

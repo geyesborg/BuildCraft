@@ -131,7 +131,7 @@ public class HashUtil {
         // We have to intercept lists as they might contain compounds
         // (Although normal lists are already stable)
         int type;
-        if (nbt.hasNoTags()) {
+        if (nbt.isEmpty()) {
             type = 0;
         } else {
             type = nbt.get(0).getId();

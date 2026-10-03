@@ -227,8 +227,8 @@ public enum GuideManager implements IResourceManagerReloadListener {
         main_iteration: for (Entry<ResourceLocation, PageEntry<?>> mapEntry : GuidePageRegistry.INSTANCE
             .getReloadableEntryMap().entrySet()) {
             ResourceLocation entryKey = mapEntry.getKey();
-            String domain = entryKey.getResourceDomain();
-            String path = "compat/buildcraft/guide/" + lang + "/" + entryKey.getResourcePath();
+            String domain = entryKey.getNamespace();
+            String path = "compat/buildcraft/guide/" + lang + "/" + entryKey.getPath();
 
             for (Entry<String, IPageLoader> entry : PAGE_LOADERS.entrySet()) {
                 ResourceLocation fLoc = new ResourceLocation(domain, path + "." + entry.getKey());

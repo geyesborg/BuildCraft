@@ -148,7 +148,7 @@ public class TileLaser extends TileBC_Neptune implements ITickable, IDebuggable,
     private void updateLaser() {
         if (targetPos != null) {
             laserPos = new Vec3d(targetPos)
-                .addVector(
+                .add(
                     (5 + world.rand.nextInt(6) + 0.5) / 16D,
                     9 / 16D,
                     (5 + world.rand.nextInt(6) + 0.5) / 16D

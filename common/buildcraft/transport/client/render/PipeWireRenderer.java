@@ -143,9 +143,9 @@ public class PipeWireRenderer {
                 az ? 2.99 / 32 : 1 / 32.0 //
             );
             center = new Vec3d(//
-                ax ? (0.5 + 6.505 / 16 * between.to.getFrontOffsetX()) : (between.xy ? cU : cL), //
-                ay ? (0.5 + 6.505 / 16 * between.to.getFrontOffsetY()) : ((ax ? between.xy : between.yz) ? cU : cL), //
-                az ? (0.5 + 6.505 / 16 * between.to.getFrontOffsetZ()) : (between.yz ? cU : cL) //
+                ax ? (0.5 + 6.505 / 16 * between.to.getXOffset()) : (between.xy ? cU : cL), //
+                ay ? (0.5 + 6.505 / 16 * between.to.getYOffset()) : ((ax ? between.xy : between.yz) ? cU : cL), //
+                az ? (0.5 + 6.505 / 16 * between.to.getZOffset()) : (between.yz ? cU : cL) //
             );
         }
 
@@ -206,7 +206,7 @@ public class PipeWireRenderer {
 
     private static void renderQuads(MutableQuad[] quads, ISprite sprite, int level) {
         VertexFormat vf = DefaultVertexFormats.POSITION_TEX_COLOR;
-        Tessellator tessellator = new Tessellator(quads.length * vf.getNextOffset());
+        Tessellator tessellator = new Tessellator(quads.length * vf.getSize());
         BufferBuilder bb = tessellator.getBuffer();
         bb.begin(GL11.GL_QUADS, vf);
 

@@ -434,7 +434,7 @@ public class GuiUtil {
         List<String> list = getUnFormattedTooltip(stack);
 
         if (!list.isEmpty()) {
-            list.set(0, stack.getRarity().rarityColor + list.get(0));
+            list.set(0, stack.getRarity().color + list.get(0));
         }
 
         for (int i = 1; i < list.size(); ++i) {

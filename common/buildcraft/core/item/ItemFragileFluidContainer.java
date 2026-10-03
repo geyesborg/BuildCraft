@@ -64,7 +64,7 @@ public class ItemFragileFluidContainer extends ItemBC_Neptune implements IItemFl
             if (bcFluid.isHeatable()) {
                 // Add the heatable bit to the end of the name
                 localized = bcFluid.getBareLocalizedName(fluid);
-                String whole = LocaleUtil.localize(getUnlocalizedName() + ".name", localized);
+                String whole = LocaleUtil.localize(getTranslationKey() + ".name", localized);
                 return LocaleUtil.localize("buildcraft.fluid.heat_" + bcFluid.getHeatValue(), whole);
             } else {
                 localized = fluid.getLocalizedName();
@@ -72,7 +72,7 @@ public class ItemFragileFluidContainer extends ItemBC_Neptune implements IItemFl
         } else {
             localized = fluid.getLocalizedName();
         }
-        return LocaleUtil.localize(getUnlocalizedName() + ".name", localized);
+        return LocaleUtil.localize(getTranslationKey() + ".name", localized);
     }
 
     @SideOnly(Side.CLIENT)

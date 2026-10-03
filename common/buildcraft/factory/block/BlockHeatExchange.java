@@ -141,7 +141,7 @@ public class BlockHeatExchange extends BlockBCTile_Neptune implements ICustomPip
 
     @Override
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer() {
+    public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
     }
 

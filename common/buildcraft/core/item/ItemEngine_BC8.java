@@ -19,15 +19,15 @@ public class ItemEngine_BC8<E extends Enum<E> & IEngineType> extends ItemBlockBC
     private final BlockEngineBase_BC8<E> engineBlock;
 
     public ItemEngine_BC8(BlockEngineBase_BC8<E> block) {
-        super(block, (stack) -> block.getUnlocalizedName(block.getEngineType(stack.getItemDamage())));
+        super(block, (stack) -> block.getTranslationKey(block.getEngineType(stack.getItemDamage())));
         engineBlock = block;
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack) {
+    public String getTranslationKey(ItemStack stack) {
         IBlockState state = engineBlock.getStateFromMeta(stack == null ? 0 : stack.getItemDamage());
         E engine = state.getValue(engineBlock.getEngineProperty());
-        return "tile." + engineBlock.getUnlocalizedName(engine);
+        return "tile." + engineBlock.getTranslationKey(engine);
     }
 
     @Override

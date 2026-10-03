@@ -209,7 +209,7 @@ public class BlockPipeHolder extends BlockBCTile_Neptune implements ICustomPaint
 
     @Nullable
     public RayTraceResult rayTrace(World world, BlockPos pos, EntityPlayer player) {
-        Vec3d start = player.getPositionVector().addVector(0, player.getEyeHeight(), 0);
+        Vec3d start = player.getPositionVector().add(0, player.getEyeHeight(), 0);
         double reachDistance = 5;
         if (player instanceof EntityPlayerMP) {
             reachDistance = ((EntityPlayerMP) player).interactionManager.getBlockReachDistance();
@@ -667,7 +667,7 @@ public class BlockPipeHolder extends BlockBCTile_Neptune implements ICustomPaint
     }
 
     @Override
-    public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity) {
+    public void onEntityCollision(World world, BlockPos pos, IBlockState state, Entity entity) {
         TilePipeHolder tile = getPipe(world, pos, false);
         if (tile == null) {
             return;

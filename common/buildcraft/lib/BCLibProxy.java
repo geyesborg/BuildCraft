@@ -222,7 +222,7 @@ public abstract class BCLibProxy implements IGuiHandler {
 
         @Override
         public File getGameDirectory() {
-            return Minecraft.getMinecraft().mcDataDir;
+            return Minecraft.getMinecraft().gameDir;
         }
 
         @Override

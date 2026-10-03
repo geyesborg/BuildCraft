@@ -53,7 +53,7 @@ public class BlockQuarry extends BlockBCTile_Neptune implements IBlockWithFacing
     private boolean isConnected(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing side) {
         EnumFacing facing = side;
         if (Arrays.asList(EnumFacing.HORIZONTALS).contains(facing)) {
-            facing = EnumFacing.getHorizontal(
+            facing = EnumFacing.byHorizontalIndex(
                 side.getHorizontalIndex() + 2 + state.getValue(getFacingProperty()).getHorizontalIndex());
         }
         TileEntity tile = world.getTileEntity(pos.offset(facing));

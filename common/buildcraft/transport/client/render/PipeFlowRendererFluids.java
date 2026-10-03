@@ -51,7 +51,7 @@ public enum PipeFlowRendererFluids implements IPipeFlowRenderer<PipeFlowFluids> 
             return;
         }
 
-        Profiler prof = Minecraft.getMinecraft().mcProfiler;
+        Profiler prof = Minecraft.getMinecraft().profiler;
         prof.startSection("calc");
 
         boolean[] sides = new boolean[6];

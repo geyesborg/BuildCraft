@@ -28,7 +28,7 @@ import buildcraft.api.tools.IToolWrench;
 
 public class EntityUtil {
     public static NonNullList<ItemStack> collectItems(World world, BlockPos around, double radius) {
-        return collectItems(world, new Vec3d(around).addVector(0.5, 0.5, 0.5), radius);
+        return collectItems(world, new Vec3d(around).add(0.5, 0.5, 0.5), radius);
     }
 
     public static NonNullList<ItemStack> collectItems(World world, Vec3d around, double radius) {

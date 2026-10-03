@@ -66,7 +66,7 @@ public class ItemGateCopier extends ItemBC_Neptune {
         }
         NBTTagCompound nbt = NBTUtilBC.getItemData(stack);
         nbt.removeTag(NBT_DATA);
-        if (nbt.hasNoTags()) {
+        if (nbt.isEmpty()) {
             stack.setTagCompound(null);
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);

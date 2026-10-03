@@ -89,8 +89,8 @@ public enum MigrationManager {
         }
         for (MissingMappings.Mapping<T> mapping : all) {
             ResourceLocation loc = mapping.key;
-            String domain = loc.getResourceDomain();
-            String path = loc.getResourcePath().toLowerCase(Locale.ROOT);
+            String domain = loc.getNamespace();
+            String path = loc.getPath().toLowerCase(Locale.ROOT);
             if (DEBUG) {
                 BCLog.logger.info("[lib.migrate]  - " + domain + ":" + path);
             }

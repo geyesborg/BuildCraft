@@ -553,28 +553,28 @@ public class MutableQuad {
         // @formatter:off
         switch (from.getAxis()) {
             case X: {
-                int mult = from.getFrontOffsetX();
+                int mult = from.getXOffset();
                 switch (to.getAxis()) {
                     case X: rotateY_180(); break;
-                    case Y: rotateZ_90(mult * to.getFrontOffsetY()); break;
-                    case Z: rotateY_90(mult * to.getFrontOffsetZ()); break;
+                    case Y: rotateZ_90(mult * to.getYOffset()); break;
+                    case Z: rotateY_90(mult * to.getZOffset()); break;
                 }
                 break;
             }
             case Y: {
-                int mult = from.getFrontOffsetY();
+                int mult = from.getYOffset();
                 switch (to.getAxis()) {
-                    case X: rotateZ_90(-mult * to.getFrontOffsetX()); break;
+                    case X: rotateZ_90(-mult * to.getXOffset()); break;
                     case Y: rotateZ_180(); break;
-                    case Z: rotateX_90(mult * to.getFrontOffsetZ()); break;
+                    case Z: rotateX_90(mult * to.getZOffset()); break;
                 }
                 break;
             }
             case Z: {
-                int mult = -from.getFrontOffsetZ();
+                int mult = -from.getZOffset();
                 switch (to.getAxis()) {
-                    case X: rotateY_90(mult * to.getFrontOffsetX()); break;
-                    case Y: rotateX_90(mult * to.getFrontOffsetY()); break;
+                    case X: rotateY_90(mult * to.getXOffset()); break;
+                    case Y: rotateX_90(mult * to.getYOffset()); break;
                     case Z: rotateY_180(); break;
                 }
                 break;

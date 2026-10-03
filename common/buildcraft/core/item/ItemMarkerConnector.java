@@ -68,7 +68,7 @@ public class ItemMarkerConnector extends ItemBC_Neptune {
 
     private static <S extends MarkerSubCache<?>> boolean interactCache(S cache, EntityPlayer player) {
         MarkerLineInteraction best = null;
-        Vec3d playerPos = player.getPositionVector().addVector(0, player.getEyeHeight(), 0);
+        Vec3d playerPos = player.getPositionVector().add(0, player.getEyeHeight(), 0);
         Vec3d playerLook = player.getLookVec();
         for (BlockPos marker : cache.getAllMarkers()) {
             ImmutableList<BlockPos> possibles = cache.getValidConnections(marker);
@@ -97,7 +97,7 @@ public class ItemMarkerConnector extends ItemBC_Neptune {
         return new MarkerLineInteraction(
             a,
             b,
-            player.getPositionVector().addVector(0, player.getEyeHeight(), 0),
+            player.getPositionVector().add(0, player.getEyeHeight(), 0),
             player.getLookVec()
         ).didInteract();
     }
@@ -111,7 +111,7 @@ public class ItemMarkerConnector extends ItemBC_Neptune {
 
         VolumeBox currentEditing = volumeBoxes.getCurrentEditing(player);
 
-        Vec3d start = player.getPositionVector().addVector(0, player.getEyeHeight(), 0);
+        Vec3d start = player.getPositionVector().add(0, player.getEyeHeight(), 0);
         Vec3d end = start.add(player.getLookVec().scale(4));
 
         Pair<VolumeBox, EnumAddonSlot> selectingVolumeBoxAndSlot = EnumAddonSlot.getSelectingVolumeBoxAndSlot(

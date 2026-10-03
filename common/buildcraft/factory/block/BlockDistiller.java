@@ -57,7 +57,7 @@ public class BlockDistiller extends BlockBCTile_Neptune implements IBlockWithFac
 
     @Override
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer() {
+    public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
     }
 }

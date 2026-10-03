@@ -1,0 +1,12 @@
+language: java
+jdk:
+  - openjdk8
+
+jobs:
+  include:
+    - stage: build
+      install: ./gradlew setupCiWorkspace
+      script: ./gradlew build
+env:
+  global:
+    TERM=dumb

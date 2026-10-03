@@ -25,21 +25,21 @@ import buildcraft.compat.module.ic2.CompatModuleIndustrialCraft2;
 import buildcraft.compat.module.theoneprobe.CompatModuleTheOneProbe;
 import buildcraft.compat.network.CompatGui;
 import buildcraft.core.BCCoreConfig;
+import buildcraft.lib.BCBuildInfo;
 
 //@formatter:off
 @Mod(
         modid = BCCompat.MODID,
-        name = "BuildCraft Compat",
+        name = "BuildCraft Legacy Compat",
         version = BCCompat.VERSION,
-        updateJSON = "https://mod-buildcraft.com/version/versions-compat.json",
-        acceptedMinecraftVersions = "(gradle_replace_mcversion,)",
+        acceptedMinecraftVersions = "[" + BCBuildInfo.MC_VERSION + "]",
         dependencies = BCCompat.DEPENDENCIES
 )
 //@formatter:on
 public class BCCompat {
 
-    static final String DEPENDENCIES = "required-after:forge@(gradle_replace_forgeversion,)"//
-        + ";required-after:buildcraftcore@[$bc_version,)"//
+    static final String DEPENDENCIES = "required-after:forge@[" + BCBuildInfo.FORGE_VERSION + ",)"//
+        + ";required-after:buildcraftcore@[" + BCBuildInfo.VERSION + "]"//
         + ";after:buildcrafttransport"//
         + ";after:buildcraftbuilders"//
         + ";after:buildcraftsilicon"//
@@ -50,11 +50,11 @@ public class BCCompat {
     ;
 
     public static final String MODID = "buildcraftcompat";
-    public static final String VERSION = "$version";
-    public static final String GIT_BRANCH = "${git_branch}";
-    public static final String GIT_COMMIT_HASH = "${git_commit_hash}";
-    public static final String GIT_COMMIT_MSG = "${git_commit_msg}";
-    public static final String GIT_COMMIT_AUTHOR = "${git_commit_author}";
+    public static final String VERSION = BCBuildInfo.VERSION;
+    public static final String GIT_BRANCH = BCBuildInfo.GIT_BRANCH;
+    public static final String GIT_COMMIT_HASH = BCBuildInfo.GIT_COMMIT_HASH;
+    public static final String GIT_COMMIT_MSG = BCBuildInfo.GIT_COMMIT_MSG;
+    public static final String GIT_COMMIT_AUTHOR = BCBuildInfo.GIT_COMMIT_AUTHOR;
 
     @Mod.Instance(MODID)
     public static BCCompat instance;

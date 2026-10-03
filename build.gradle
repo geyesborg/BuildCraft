@@ -31,6 +31,10 @@ java {
 
 repositories {
     maven { url = 'https://maven.cleanroommc.com' }
+    exclusiveContent {
+        forRepository { maven { url = 'https://cursemaven.com' } }
+        filter { includeGroup('curse.maven') }
+    }
     mavenCentral()
 }
 
@@ -41,12 +45,12 @@ def buildInfoDir = layout.buildDirectory.dir('generated/sources/buildinfo/java')
 sourceSets {
     main {
         java {
-            srcDirs = ['common', 'common_old_license', 'BuildCraftAPI/api', "$expressionDir/src/main/java"]
+            srcDirs = ['common', 'common_old_license', 'BuildCraftAPI/api', "$expressionDir/src/main/java", 'compat/common']
             srcDir expressionAutogen
             srcDir buildInfoDir
         }
         resources {
-            srcDirs = ['buildcraft_resources', 'BuildCraft-Localization', 'BuildCraftGuide/guide_resources']
+            srcDirs = ['buildcraft_resources', 'BuildCraft-Localization', 'BuildCraftGuide/guide_resources', 'compat/resources']
             exclude '**/*.md', 'pack.png', 'pack.mcmeta'
         }
     }
@@ -75,6 +79,15 @@ dependencies {
     // LWJGL 2 utility classes (org.lwjgl.util.glu.GLU, org.lwjgl.util.vector) that Cleanroom ships through LWJGLY
     compileOnly 'com.cleanroommc:lwjgly:1.0.0'
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
+    // BuildCraft Compat modules (each loads only when its mod is present): latest 1.12.2 files
+    compileOnly 'curse.maven:hei-557549:8934963'            // HadEnoughItems 4.35.0 (JEI API)
+    compileOnly 'curse.maven:theoneprobe-245211:2667280'    // The One Probe 1.4.28
+    compileOnly 'curse.maven:hwyla-253449:2568751'          // Hwyla 1.8.26-B41
+    compileOnly 'curse.maven:forestry-59751:7398359'        // Forestry 5.8.2.427
+    compileOnly 'curse.maven:crafttweaker-239197:8051578'   // CraftTweaker2 4.1.20.715
+    compileOnly 'curse.maven:ic2-242638:3838713'            // IndustrialCraft 2 2.8.222-ex112
+
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.google.code.findbugs:jsr305:3.0.2'
 }

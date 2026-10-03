@@ -65,7 +65,7 @@ public class BCPluginTOP implements Function<ITheOneProbe, Void>, IBlockDisplayO
     @Optional.Method(modid = TOP_MOD_ID)
     public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
         ResourceLocation blockRegistryName = blockState.getBlock().getRegistryName();
-        if ((blockRegistryName != null) && (BCModules.isBcMod(blockRegistryName.getResourceDomain()))) {
+        if ((blockRegistryName != null) && (BCModules.isBcMod(blockRegistryName.getNamespace()))) {
             TileEntity entity = world.getTileEntity(data.getPos());
             if (entity instanceof IAutoCraft) {
                 this.addAutoCraftInfo(probeInfo, (IAutoCraft) entity);

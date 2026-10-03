@@ -140,7 +140,7 @@ public class PipeBehaviourPropolis extends PipeBehaviour implements IFilterConta
 
     @Override
     public String getUnlocalizedTitle() {
-        return ForestryPipes.pipeItemPropolis.getUnlocalizedName() + ".name";
+        return ForestryPipes.pipeItemPropolis.getTranslationKey() + ".name";
     }
 
     @Override

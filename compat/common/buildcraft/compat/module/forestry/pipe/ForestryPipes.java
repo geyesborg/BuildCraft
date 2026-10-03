@@ -47,7 +47,7 @@ public class ForestryPipes {
         PipeApi.pipeRegistry.createUnnamedItemForPipe(pipeDefinitionPropolis, item -> {
             pipeItemPropolis = item;
             item.setRegistryName("pipe_item_propolis");
-            item.setUnlocalizedName("buildcraftPipe.pipeitemspropolis");
+            item.setTranslationKey("buildcraftPipe.pipeitemspropolis");
             item.setCreativeTab(CreativeTabManager.getTab("buildcraft.pipes"));
         });
     }

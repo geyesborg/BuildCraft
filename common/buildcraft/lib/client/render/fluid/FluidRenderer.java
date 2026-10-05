@@ -64,15 +64,33 @@ public class FluidRenderer {
     private static double xTexDiff, yTexDiff, zTexDiff;
 
     // With DefaultVertexFormats.BLOCK each quad is packed and appended whole (BlockQuadPacker)
-    private static final int[] quad = new int[BlockQuadPacker.QUAD_INTS];
-    private static int quadVertices;
+    private static final int[][] boxData = new int[7][];
+    private static int[] quad;
+    private static int quadVertices, batchVertices;
     private static boolean packQuads;
     private static double xOffset, yOffset, zOffset;
 
+    static void startQuads(BufferBuilder buffer, boolean[] sides) {
+        int faces = 6;
+        if (sides != null && sides != DEFAULT_FACES) {
+            faces = 0;
+            for (int i = 0; i < 6; i++) {
+                if (sides[i]) faces++;
+            }
+        }
+        startQuads(buffer, faces);
+    }
+
     static void startQuads(BufferBuilder buffer) {
+        startQuads(buffer, 1);
+    }
+
+    private static void startQuads(BufferBuilder buffer, int faces) {
         bb = buffer;
         packQuads = BlockQuadPacker.canPack(buffer);
         if (packQuads) {
+            quad = boxData[faces];
+            batchVertices = faces * 4;
             xOffset = BlockQuadPacker.xOffset(buffer);
             yOffset = BlockQuadPacker.yOffset(buffer);
             zOffset = BlockQuadPacker.zOffset(buffer);
@@ -82,7 +100,7 @@ public class FluidRenderer {
 
     static void packVertex(MutableVertex v) {
         BlockQuadPacker.packVertex(quad, quadVertices * BlockQuadPacker.VERTEX_INTS, v, xOffset, yOffset, zOffset);
-        if (++quadVertices == 4) {
+        if (++quadVertices == batchVertices) {
             bb.addVertexData(quad);
             quadVertices = 0;
         }
@@ -93,6 +111,9 @@ public class FluidRenderer {
         vertex.lighti(0xF, 0xF);
         for (FluidSpriteType type : FluidSpriteType.values()) {
             fluidSprites.put(type, new HashMap<>());
+        }
+        for (int faces = 0; faces < boxData.length; faces++) {
+            boxData[faces] = new int[faces * BlockQuadPacker.QUAD_INTS];
         }
     }
 
@@ -250,7 +271,7 @@ public class FluidRenderer {
             realMax = VecUtil.replaceValue(max, Axis.Y, MathUtil.interp(height, min.y, max.y));
         }
 
-        startQuads(bbIn);
+        startQuads(bbIn, sideRender);
 
         if (type == null) {
             type = FluidSpriteType.STILL;

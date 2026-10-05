@@ -6,8 +6,6 @@
 
 package buildcraft.transport.client.render;
 
-import java.util.Arrays;
-
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
@@ -54,9 +52,6 @@ public enum PipeFlowRendererFluids implements IPipeFlowRenderer<PipeFlowFluids> 
         Profiler prof = Minecraft.getMinecraft().profiler;
         prof.startSection("calc");
 
-        boolean[] sides = new boolean[6];
-        Arrays.fill(sides, true);
-
         double[] amounts = flow.getAmountsForRender(partialTicks);
         Vec3d[] offsets = flow.getOffsetsForRender(partialTicks);
 
@@ -102,10 +97,10 @@ public enum PipeFlowRendererFluids implements IPipeFlowRenderer<PipeFlowFluids> 
                 Vec3d max = center.add(radius);
 
                 if (face.getAxis() == Axis.Y) {
-                    FluidRenderer.renderFluid(FluidSpriteType.FROZEN, forRender, 1, 1, min, max, fluidBuffer, sides);
+                    FluidRenderer.renderFluid(FluidSpriteType.FROZEN, forRender, 1, 1, min, max, fluidBuffer, null);
                 } else {
                     FluidRenderer.renderFluid(FluidSpriteType.FROZEN, forRender, amount, flow.capacity, min, max,
-                        fluidBuffer, sides);
+                        fluidBuffer, null);
                 }
             }
 
@@ -125,7 +120,7 @@ public enum PipeFlowRendererFluids implements IPipeFlowRenderer<PipeFlowFluids> 
                 max = max.add(offset);
 
                 FluidRenderer.renderFluid(FluidSpriteType.FROZEN, forRender, amount, flow.capacity, min, max,
-                    fluidBuffer, sides);
+                    fluidBuffer, null);
                 horizPos += (max.y - min.y) * amount / flow.capacity;
             }
 
@@ -143,7 +138,7 @@ public enum PipeFlowRendererFluids implements IPipeFlowRenderer<PipeFlowFluids> 
                 min = min.add(offset);
                 max = max.add(offset);
 
-                FluidRenderer.renderFluid(FluidSpriteType.FROZEN, forRender, 1, 1, min, max, fluidBuffer, sides);
+                FluidRenderer.renderFluid(FluidSpriteType.FROZEN, forRender, 1, 1, min, max, fluidBuffer, null);
             }
 
             // gl state setup

@@ -15,6 +15,66 @@ import buildcraft.lib.client.model.MutableVertex;
 /** Packed quads (FluidRenderer, MutableQuad.render) must be byte-for-byte what the per-element BufferBuilder calls write */
 public class FluidRendererPackTest {
 
+    private static final class CountingBuffer extends BufferBuilder {
+        int writes;
+
+        CountingBuffer() {
+            super(8);
+        }
+
+        @Override
+        public void addVertexData(int[] data) {
+            writes++;
+            super.addVertexData(data);
+        }
+    }
+
+    @Test
+    public void fluidBoxesUseOneWriteAndPreserveEveryByte() {
+        Random random = new Random(6238);
+        BufferBuilder expected = new BufferBuilder(8);
+        CountingBuffer actual = new CountingBuffer();
+        for (int round = 0; round < 4; round++) {
+            expected.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+            actual.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+            for (int mask = 0; mask <= 64; mask++) {
+                boolean[] sides = mask == 64 ? null : new boolean[6];
+                if (sides != null) {
+                    for (int face = 0; face < 6; face++) sides[face] = (mask & (1 << face)) != 0;
+                }
+                int faces = mask == 64 ? 6 : Integer.bitCount(mask);
+                double x = (random.nextDouble() - 0.5) * 60_000_000;
+                double y = (random.nextDouble() - 0.5) * 512;
+                double z = (random.nextDouble() - 0.5) * 60_000_000;
+                expected.setTranslation(x, y, z);
+                actual.setTranslation(x, y, z);
+                FluidRenderer.startQuads(actual, sides);
+                int writesBefore = actual.writes;
+                for (int v = 0; v < faces * 4; v++) {
+                    MutableVertex vertex = new MutableVertex();
+                    vertex.positiond(random.nextDouble() * 4 - 2, random.nextDouble() * 4 - 2,
+                        random.nextDouble() * 4 - 2);
+                    vertex.colouri(random.nextInt());
+                    vertex.texf(random.nextFloat(), random.nextFloat());
+                    vertex.lighti(random.nextInt(16), random.nextInt(16));
+                    vertex.renderAsBlock(expected);
+                    FluidRenderer.packVertex(vertex);
+                }
+                Assert.assertEquals("mask " + mask, faces == 0 ? 0 : 1, actual.writes - writesBefore);
+                Assert.assertEquals(expected.getVertexCount(), actual.getVertexCount());
+            }
+            int bytes = expected.getVertexCount() * DefaultVertexFormats.BLOCK.getSize();
+            for (int i = 0; i < bytes; i++) {
+                Assert.assertEquals("byte " + i + ", round " + round,
+                    expected.getByteBuffer().get(i), actual.getByteBuffer().get(i));
+            }
+            expected.finishDrawing();
+            actual.finishDrawing();
+            expected.reset();
+            actual.reset();
+        }
+    }
+
     @Test
     public void packedQuadsMatchPerElementCalls() {
         Random random = new Random(4722);

@@ -40,6 +40,15 @@ import buildcraft.transport.pipe.flow.TravellingItem;
 public enum PipeFlowRendererItems implements IPipeFlowRenderer<PipeFlowItems> {
     INSTANCE;
 
+    /** Bunched items overlap, and equal cubes overlapping z-fight. Each item is moved towards the camera, along the line
+     * of sight (so not on screen), by up to NUDGE_MAX of its distance, growing with its world position along its
+     * direction of travel (the fraction of NUDGE_PERIOD blocks): of two overlapping items the one further ahead is always
+     * in front. It depends on the position only, so it doesn't change when the client recreates an item at a pipe's
+     * centre or edge; the order flips only where the fraction wraps, once per NUDGE_PERIOD blocks. Proportional to the
+     * distance, the separation keeps pace with depth precision and the size change stays below 1%. */
+    private static final double NUDGE_MAX = 0.01;
+    private static final double NUDGE_PERIOD = 8;
+
     private static final MutableQuad[] COLOURED_QUADS = new MutableQuad[6];
 
     public static void onModelBake() {
@@ -68,19 +77,23 @@ public enum PipeFlowRendererItems implements IPipeFlowRenderer<PipeFlowItems> {
         int lightc = world.getCombinedLight(flow.pipe.getHolder().getPipePos(), 0);
 
         List<TravellingItem> toRender = flow.getAllItemsForRender();
-        // Consecutive items (neighbours when they bunch up) get different size steps so their faces aren't coplanar;
-        // the start differs between neighbouring pipes
         BlockPos pipePos = flow.pipe.getHolder().getPipePos();
-        int sizeStep = pipePos.getX() + pipePos.getY() * 3 + pipePos.getZ() * 5;
 
         for (TravellingItem item : toRender) {
-            sizeStep = (sizeStep + 1) & (ItemQuadTransforms.SIZE_STEPS - 1);
             Vec3d pos = item.getRenderPosition(BlockPos.ORIGIN, now, partialTicks, flow);
 
             ItemStack stack = item.clientItemLink.get();
             if (stack != null && !stack.isEmpty()) {
+                EnumFacing dir = item.getRenderDirection(now, partialTicks);
+                double nudge = 0;
+                if (dir != null) {
+                    double along = (pipePos.getX() + pos.x) * dir.getXOffset() + (pipePos.getY() + pos.y) * dir.getYOffset()
+                        + (pipePos.getZ() + pos.z) * dir.getZOffset();
+                    double fraction = along / NUDGE_PERIOD - Math.floor(along / NUDGE_PERIOD);
+                    nudge = NUDGE_MAX * fraction;
+                }
                 ItemRenderUtil.renderItemStack(x + pos.x, y + pos.y, z + pos.z, //
-                    stack, item.stackSize, lightc, item.getRenderDirection(now, partialTicks), bb, sizeStep);
+                    stack, item.stackSize, lightc, dir, bb, nudge);
             }
             if (item.colour != null) {
                 bb.setTranslation(x + pos.x, y + pos.y, z + pos.z);

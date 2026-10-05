@@ -84,14 +84,14 @@ public class ItemQuadTransformsTest {
     }
 
     /** ItemRenderUtil's per-frame code before the cache, for one model copy */
-    private static void renderPerFrame(IBakedModel model, EnumFacing dir, int[] tints, int lightc, BufferBuilder bb, float scale) {
+    private static void renderPerFrame(IBakedModel model, EnumFacing dir, int[] tints, int lightc, BufferBuilder bb) {
         MutableQuad q = new MutableQuad(-1, null);
         int tint = 0;
         for (EnumPipePart part : EnumPipePart.VALUES) {
             for (BakedQuad quad : model.getQuads(null, part.face, 0)) {
                 q.fromBakedItem(quad);
                 q.translated(-0.5, -0.5, -0.5);
-                q.scaled(scale);
+                q.scaled(0.30f);
                 q.rotate(EnumFacing.SOUTH, dir, 0, 0, 0);
                 if (quad.hasTintIndex()) {
                     int colour = tints[tint++];
@@ -126,16 +126,14 @@ public class ItemQuadTransformsTest {
                 BufferBuilder expected = new BufferBuilder(512), actual = new BufferBuilder(512);
                 expected.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
                 actual.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-                // Several frames and stack copies at different translations, light levels and size steps share the
-                // cache entries (step 0 is the original 0.30 scale)
-                for (int copy = 0; copy < 6; copy++) {
+                // Several frames and stack copies at different translations and light levels share the cache entry
+                for (int copy = 0; copy < 3; copy++) {
                     double tx = random.nextDouble() * 40 - 20, ty = random.nextDouble() * 40 - 20, tz = random.nextDouble() * 40 - 20;
                     int lightc = random.nextInt(16) << 4 | random.nextInt(16) << 20;
-                    int step = copy % 3;
                     expected.setTranslation(tx, ty, tz);
                     actual.setTranslation(tx, ty, tz);
-                    renderPerFrame(model, dir, tints, lightc, expected, step == 0 ? 0.30f : ItemQuadTransforms.scale(step));
-                    for (MutableQuad q : ItemQuadTransforms.get(model, dir, tints, step)) {
+                    renderPerFrame(model, dir, tints, lightc, expected);
+                    for (MutableQuad q : ItemQuadTransforms.get(model, dir, tints)) {
                         q.lighti(lightc);
                         q.render(actual);
                     }

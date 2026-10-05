@@ -86,15 +86,20 @@ public class ItemRenderUtil {
         renderItemStack(x, y, z, stack, stackCount, lightc, dir, bb, 0);
     }
 
-    /** As above; sizeStep (0 .. {@link ItemQuadTransforms#SIZE_STEPS} - 1) draws the item slightly larger, so that items
-     * drawn overlapping (bunched in a pipe) get different steps and don't z-fight */
+    /** As above, with the item moved towards the camera by the fraction nearer (0 .. 1) of its distance, along the line
+     * of sight, so it stays at the same place on screen: items drawn overlapping (bunched in a pipe) are equal cubes whose
+     * faces would be coplanar and z-fight; slightly different distances let the depth test pick one, the same one every
+     * frame. x, y, z are relative to the camera, as in a tile entity renderer. */
     public static void renderItemStack(double x, double y, double z, ItemStack stack, int stackCount, int lightc,
-        EnumFacing dir, BufferBuilder bb, int sizeStep) {
+        EnumFacing dir, BufferBuilder bb, double nearer) {
         if (stack.isEmpty()) {
             return;
         }
+        x *= 1 - nearer;
+        y *= 1 - nearer;
+        z *= 1 - nearer;
         try {
-            renderItemStackInternal(x, y, z, stack, stackCount, lightc, dir, bb, sizeStep);
+            renderItemStackInternal(x, y, z, stack, stackCount, lightc, dir, bb);
         } catch (Throwable exception) {
             CrashReport report = CrashReport.makeCrashReport(exception, "Rendering Item Stack");
             CrashReportCategory category = report.makeCategory("Item being rendered");
@@ -108,8 +113,7 @@ public class ItemRenderUtil {
     }
 
     private static void renderItemStackInternal(
-        double x, double y, double z, ItemStack stack, int stackCount, int lightc, EnumFacing dir, BufferBuilder bb,
-        int sizeStep
+        double x, double y, double z, ItemStack stack, int stackCount, int lightc, EnumFacing dir, BufferBuilder bb
     ) {
         if (dir == null) {
             dir = EnumFacing.EAST;
@@ -123,7 +127,7 @@ public class ItemRenderUtil {
         if (bb != null && !requireGl) {
 
             final int itemModelCount = getStackModelCount(stackCount);
-            MutableQuad[] quads = ItemQuadTransforms.get(model, dir, tintColours(model, stack), sizeStep);
+            MutableQuad[] quads = ItemQuadTransforms.get(model, dir, tintColours(model, stack));
 
             if (itemModelCount > 1) {
                 setupModelOffsetRandom(stack);
@@ -159,8 +163,7 @@ public class ItemRenderUtil {
         // first was drawn at the first one's position)
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
-        double scale = 0.3 * ItemQuadTransforms.scale(sizeStep) / ItemQuadTransforms.scale(0);
-        GlStateManager.scale(scale, scale, scale);
+        GlStateManager.scale(0.3, 0.3, 0.3);
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightc % (float) 0x1_00_00,
             lightc / (float) 0x1_00_00);
         Minecraft.getMinecraft().getRenderItem().renderItem(stack, model);

@@ -214,13 +214,17 @@ public class ItemRenderUtil {
             inBatch = true;
             Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
             GL11.glPushMatrix();
-            GL11.glTranslated(x, y, z);
-            GL11.glScaled(0.3, 0.3, 0.3);
             RenderHelper.disableStandardItemLighting();
         }
+        // Each item at its own position (the translation used to be set once per batch, so every item after the
+        // first was drawn at the first one's position)
+        GL11.glPushMatrix();
+        GL11.glTranslated(x, y, z);
+        GL11.glScaled(0.3, 0.3, 0.3);
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightc % (float) 0x1_00_00,
             lightc / (float) 0x1_00_00);
         Minecraft.getMinecraft().getRenderItem().renderItem(stack, model);
+        GL11.glPopMatrix();
     }
 
     private static void setupModelOffsetRandom(ItemStack stack) {

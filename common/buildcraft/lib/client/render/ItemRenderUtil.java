@@ -8,32 +8,22 @@ package buildcraft.lib.client.render;
 
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import javax.vecmath.Vector3f;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalNotification;
-
-import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.renderer.GLAllocation;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.entity.RenderEntityItem;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ReportedException;
@@ -47,70 +37,11 @@ import buildcraft.api.core.EnumPipePart;
 
 import buildcraft.lib.BCLibConfig;
 import buildcraft.lib.client.model.MutableQuad;
-import buildcraft.lib.misc.ItemStackKey;
 
 @SideOnly(Side.CLIENT)
 public class ItemRenderUtil {
 
-    private static final LoadingCache<ItemStackKey, Integer> glListCache;
-
     private static final Random modelOffsetRandom = new Random(0);
-
-    private static final EntityItem dummyEntityItem = new EntityItem(null);
-    private static final RenderEntityItem customItemRenderer =
-        new RenderEntityItem(Minecraft.getMinecraft().getRenderManager(), Minecraft.getMinecraft().getRenderItem()) {
-            @Override
-            public boolean shouldSpreadItems() {
-                return false;
-            }
-
-            @Override
-            public boolean shouldBob() {
-                return false;
-            }
-        };
-    static {
-        glListCache = CacheBuilder.newBuilder()//
-            .expireAfterAccess(40, TimeUnit.SECONDS)//
-            .removalListener(ItemRenderUtil::onStackRemove)//
-            .build(CacheLoader.from(ItemRenderUtil::makeItemGlList));
-    }
-
-    private static Integer makeItemGlList(ItemStackKey item) {
-        int list = GLAllocation.generateDisplayLists(1);
-        GL11.glNewList(list, GL11.GL_COMPILE);
-        renderItemImpl(0, 0, 0, item.baseStack);
-        GL11.glEndList();
-        return list;
-    }
-
-    private static void onStackRemove(RemovalNotification<ItemStackKey, Integer> notification) {
-        Integer val = notification.getValue();
-        if (val != null) {
-            GLAllocation.deleteDisplayLists(val);
-        }
-    }
-
-    private static void renderItemImpl(double x, double y, double z, ItemStack stack) {
-        GL11.glPushMatrix();
-        GL11.glTranslated(0, -0.2, 0);
-        GL11.glScaled(0.9, 0.9, 0.9);
-
-        // This is broken - some stacks render too big but some render way too small.
-        // Also not all stacks are centered :/
-
-        if (stack.getItem() instanceof ItemBlock) {
-            dummyEntityItem.hoverStart = 0;
-        } else {
-            // Items are rotated by 45 degrees
-            dummyEntityItem.hoverStart = (float) (45 * Math.PI / 180);
-        }
-
-        dummyEntityItem.setItem(stack);
-        customItemRenderer.doRender(dummyEntityItem, x, y, z, 0, 0);
-
-        GL11.glPopMatrix();
-    }
 
     /** The tint colour of each tinted quad, in render order (null without tinted quads) */
     private static int[] tintColours(IBakedModel model, ItemStack stack) {
@@ -213,18 +144,18 @@ public class ItemRenderUtil {
         if (!inBatch) {
             inBatch = true;
             Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-            GL11.glPushMatrix();
+            GlStateManager.pushMatrix();
             RenderHelper.disableStandardItemLighting();
         }
         // Each item at its own position (the translation used to be set once per batch, so every item after the
         // first was drawn at the first one's position)
-        GL11.glPushMatrix();
-        GL11.glTranslated(x, y, z);
-        GL11.glScaled(0.3, 0.3, 0.3);
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, z);
+        GlStateManager.scale(0.3, 0.3, 0.3);
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightc % (float) 0x1_00_00,
             lightc / (float) 0x1_00_00);
         Minecraft.getMinecraft().getRenderItem().renderItem(stack, model);
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
     }
 
     private static void setupModelOffsetRandom(ItemStack stack) {
@@ -266,7 +197,7 @@ public class ItemRenderUtil {
     public static void endItemBatch() {
         if (inBatch) {
             inBatch = false;
-            GL11.glPopMatrix();
+            GlStateManager.popMatrix();
         }
     }
 }

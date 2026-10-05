@@ -79,16 +79,16 @@ public class SpriteHolderRegistry {
         GlStateManager.bindTexture(map.getGlTextureId());
 
         for (int l = 0; l < 4; l++) {
-            int width = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, l, GL11.GL_TEXTURE_WIDTH);
-            int height = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, l, GL11.GL_TEXTURE_HEIGHT);
+            int width = GlStateManager.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, l, GL11.GL_TEXTURE_WIDTH);
+            int height = GlStateManager.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, l, GL11.GL_TEXTURE_HEIGHT);
 
-            GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
-            GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+            GlStateManager.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
+            GlStateManager.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
 
             int totalSize = width * height;
             IntBuffer intbuffer = BufferUtils.createIntBuffer(totalSize);
             int[] aint = new int[totalSize];
-            GL11.glGetTexImage(GL11.GL_TEXTURE_2D, l, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, intbuffer);
+            GlStateManager.glGetTexImage(GL11.GL_TEXTURE_2D, l, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, intbuffer);
             intbuffer.get(aint);
             BufferedImage bufferedimage = new BufferedImage(width, height, 2);
             bufferedimage.setRGB(0, 0, width, height, aint, 0, width);

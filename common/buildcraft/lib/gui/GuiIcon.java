@@ -73,6 +73,12 @@ public class GuiIcon implements ISimpleDrawable {
         draw(sprite, x, y, x + drawnWidth, y + drawnHeight);
     }
 
+    private static final int CUSTOM_QUAD_GRID = 8;
+
+    /** Draws the sprite onto an arbitrary convex quadrilateral (corners in order: bottom-left, bottom-right, top-right,
+     * top-left of the sprite) with a projective mapping, so a quad seen in perspective isn't warped along its diagonal.
+     * The mapping is evaluated exactly at the corners of an 8x8 grid. Degenerate or non-convex input draws a plain
+     * quad. */
     public void drawCustomQuad(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
         sprite.bindTexture();
 
@@ -82,59 +88,69 @@ public class GuiIcon implements ISimpleDrawable {
         double vMin = sprite.getInterpV(0);
         double vMax = sprite.getInterpV(1);
 
-        // Unfortunately we cannot use the vertex buffer directly (as it doesn't allow for texture4f)
-        GL11.glBegin(GL11.GL_QUADS);
-
-        double[] q = calcQ(x1, y1, x2, y2, x3, y3, x4, y4);
-
-        vertDirect(x1, y1, uMin * q[0], vMax * q[0], 0, q[0]);
-        vertDirect(x2, y2, uMax * q[1], vMax * q[1], 0, q[1]);
-        vertDirect(x3, y3, uMax * q[2], vMin * q[2], 0, q[2]);
-        vertDirect(x4, y4, uMin * q[3], vMin * q[3], 0, q[3]);
-
-        GL11.glEnd();
-    }
-
-    private static double[] calcQ(double x1, double y1, double x2, double y2, double x3, double y3, double x4,
-        double y4) {
-        // Method contents taken from http://www.bitlush.com/posts/arbitrary-quadrilaterals-in-opengl-es-2-0
-        // (or github https://github.com/bitlush/android-arbitrary-quadrilaterals-in-opengl-es-2-0 if the site is down)
-        // this code is by Keith Wood
-
-        double ax = x3 - x1;
-        double ay = y3 - y1;
-        double bx = x4 - x2;
-        double by = y4 - y2;
-
-        double cross = ax * by - ay * bx;
-
-        if (cross != 0) {
-            double cy = y1 - y2;
-            double cx = x1 - x2;
-
-            double s = (ax * cy - ay * cx) / cross;
-
-            if (s > 0 && s < 1) {
-                double t = (bx * cy - by * cx) / cross;
-
-                if (t > 0 && t < 1) {
-                    double q0 = 1 / (1 - t);
-                    double q1 = 1 / (1 - s);
-                    double q2 = 1 / t;
-                    double q3 = 1 / s;
-                    return new double[] { q0, q1, q2, q3 };
+        Tessellator tess = Tessellator.getInstance();
+        BufferBuilder vb = tess.getBuffer();
+        vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        double[] h = isConvex(x1, y1, x2, y2, x3, y3, x4, y4) ? squareToQuad(x1, y1, x2, y2, x3, y3, x4, y4) : null;
+        if (h == null) {
+            vertex(vb, x1, y1, uMin, vMax);
+            vertex(vb, x2, y2, uMax, vMax);
+            vertex(vb, x3, y3, uMax, vMin);
+            vertex(vb, x4, y4, uMin, vMin);
+        } else {
+            int n = CUSTOM_QUAD_GRID;
+            for (int i = 0; i < n; i++) {
+                double a0 = i / (double) n, a1 = (i + 1) / (double) n;
+                for (int j = 0; j < n; j++) {
+                    double b0 = j / (double) n, b1 = (j + 1) / (double) n;
+                    mappedVertex(vb, h, a0, b0, uMin, uMax, vMin, vMax);
+                    mappedVertex(vb, h, a1, b0, uMin, uMax, vMin, vMax);
+                    mappedVertex(vb, h, a1, b1, uMin, uMax, vMin, vMax);
+                    mappedVertex(vb, h, a0, b1, uMin, uMax, vMin, vMax);
                 }
             }
         }
-        // in case (for some reason) some of the input was wrong then we will fail back to default rendering
-        return new double[] { 1, 1, 1, 1 };
+        tess.draw();
     }
 
-    private static void vertDirect(double x, double y, double s, double t, double r, double q) {
-        GL11.glTexCoord4d(s, t, r, q);
-        GL11.glVertex2d(x, y);
+    /** (a, b) in the unit square: a runs from corner 1 to corner 2 (u min to max), b from corner 1 to corner 4 (v max to
+     * min) */
+    private static void mappedVertex(BufferBuilder vb, double[] h, double a, double b, double uMin, double uMax,
+        double vMin, double vMax) {
+        double w = h[6] * a + h[7] * b + 1;
+        double x = (h[0] * a + h[1] * b + h[2]) / w;
+        double y = (h[3] * a + h[4] * b + h[5]) / w;
+        vertex(vb, x, y, uMin + (uMax - uMin) * a, vMax + (vMin - vMax) * b);
     }
 
+    /** The diagonals cross inside both: the quad is convex (the old projective-texcoord code's condition) */
+    static boolean isConvex(double x1, double y1, double x2, double y2, double x3, double y3, double x4,
+        double y4) {
+        double ax = x3 - x1, ay = y3 - y1, bx = x4 - x2, by = y4 - y2;
+        double cross = ax * by - ay * bx;
+        if (cross == 0) return false;
+        double cx = x1 - x2, cy = y1 - y2;
+        double s = (ax * cy - ay * cx) / cross;
+        double t = (bx * cy - by * cx) / cross;
+        return s > 0 && s < 1 && t > 0 && t < 1;
+    }
+
+    /** The projective map from the unit square ((0,0), (1,0), (1,1), (0,1)) to the four corners (Heckbert,
+     * "Fundamentals of Texture Mapping and Image Warping", 1989), as {a, b, c, d, e, f, g, h}; null if degenerate */
+    static double[] squareToQuad(double x0, double y0, double x1, double y1, double x2, double y2, double x3,
+        double y3) {
+        double sx = x0 - x1 + x2 - x3;
+        double sy = y0 - y1 + y2 - y3;
+        if (sx == 0 && sy == 0) {
+            return new double[] { x1 - x0, x3 - x0, x0, y1 - y0, y3 - y0, y0, 0, 0 };
+        }
+        double dx1 = x1 - x2, dx2 = x3 - x2, dy1 = y1 - y2, dy2 = y3 - y2;
+        double det = dx1 * dy2 - dx2 * dy1;
+        if (det == 0) return null;
+        double g = (sx * dy2 - dx2 * sy) / det;
+        double h = (dx1 * sy - sx * dy1) / det;
+        return new double[] { x1 - x0 + g * x1, x3 - x0 + h * x3, x0, y1 - y0 + g * y1, y3 - y0 + h * y3, y0, g, h };
+    }
     public void drawCutInside(IGuiArea element) {
         drawCutInside(element.getX(), element.getY(), element.getWidth(), element.getHeight());
     }

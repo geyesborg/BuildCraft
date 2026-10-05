@@ -31,6 +31,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import buildcraft.lib.client.model.ModelUtil;
 import buildcraft.lib.client.render.DetachedRenderer;
+import buildcraft.lib.client.render.gl.RasterState;
 
 import buildcraft.builders.BCBuildersConfig;
 import buildcraft.builders.client.ClientArchitectTables;
@@ -58,16 +59,16 @@ public enum RenderArchitectTables implements DetachedRenderer.IDetachedRenderer 
 
         for (AxisAlignedBB bb : boxes) {
             if (__STENCIL) {
-            GL11.glStencilMask(0xff);
-            GL11.glClearStencil(1);
+            RasterState.stencilMask(0xff);
+            RasterState.clearStencil(1);
             GlStateManager.clear(GL11.GL_STENCIL_BUFFER_BIT);
-            GL11.glEnable(GL11.GL_STENCIL_TEST);
+            RasterState.setStencilTest(true);
 
-            GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-            GL11.glStencilOp(GL11.GL_ZERO, GL11.GL_ZERO, GL11.GL_REPLACE);
-            GL11.glStencilMask(0xFF);
-            GL11.glDepthMask(false);
-            GL11.glColorMask(false, false, false, false);
+            RasterState.stencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+            RasterState.stencilOp(GL11.GL_ZERO, GL11.GL_ZERO, GL11.GL_REPLACE);
+            RasterState.stencilMask(0xFF);
+            GlStateManager.depthMask(false);
+            GlStateManager.colorMask(false, false, false, false);
             }
             BufferBuilder buffer = Tessellator.getInstance().getBuffer();
             if (__STENCIL) {
@@ -98,13 +99,13 @@ public enum RenderArchitectTables implements DetachedRenderer.IDetachedRenderer 
             buffer.pos(bb.maxX, bb.maxY, bb.maxZ).endVertex();
             buffer.pos(bb.maxX, bb.minY, bb.maxZ).endVertex();
             Tessellator.getInstance().draw();
-            GL11.glStencilMask(0x00);
-            GL11.glDepthMask(true);
-            GL11.glColorMask(true, true, true, true);
+            RasterState.stencilMask(0x00);
+            GlStateManager.depthMask(true);
+            GlStateManager.colorMask(true, true, true, true);
             }
             GlStateManager.disableDepth();
             if (__STENCIL) {
-            GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+            RasterState.stencilFunc(GL11.GL_EQUAL, 1, 0xFF);
             }
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
@@ -142,7 +143,7 @@ public enum RenderArchitectTables implements DetachedRenderer.IDetachedRenderer 
             GlStateManager.disableBlend();
             GlStateManager.enableDepth();
             if (__STENCIL) {
-            GL11.glDisable(GL11.GL_STENCIL_TEST);
+            RasterState.setStencilTest(false);
             }
         }
     }

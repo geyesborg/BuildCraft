@@ -42,7 +42,7 @@ public enum MinecraftFont implements IFontRenderer {
         boolean _scale = scale != 1;
         if (_scale) {
             GlStateManager.pushMatrix();
-            GL11.glScaled(scale, scale, 1);
+            GlStateManager.scale(scale, scale, 1);
             x = (int) (x / scale);
             y = (int) (y / scale);
         }

@@ -6,7 +6,6 @@
 
 package buildcraft.transport.client.render;
 
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -38,6 +37,7 @@ import buildcraft.lib.client.model.ModelUtil;
 import buildcraft.lib.client.model.ModelUtil.UvFaceData;
 import buildcraft.lib.client.model.MutableQuad;
 import buildcraft.lib.client.model.MutableVertex;
+import buildcraft.lib.client.render.gl.StaticMesh;
 import buildcraft.lib.client.sprite.SpriteHolderRegistry;
 import buildcraft.lib.misc.ColourUtil;
 import buildcraft.lib.misc.VecUtil;
@@ -53,14 +53,12 @@ public class PipeWireRenderer {
 
     private static final Map<EnumDyeColor, SpriteHolderRegistry.SpriteHolder> wireSprites =
         new EnumMap<>(EnumDyeColor.class);
-    private static final int[] wireRenderingCache =
-        new int[(EnumWireBetween.VALUES.length + EnumWirePart.VALUES.length) * ColourUtil.COLOURS.length * 2];
+    private static final StaticMesh[] wireRenderingCache =
+        new StaticMesh[(EnumWireBetween.VALUES.length + EnumWirePart.VALUES.length) * ColourUtil.COLOURS.length * 2];
 
     final static int WIRE_COUNT = EnumWirePart.VALUES.length * ColourUtil.COLOURS.length * 2;
 
     static {
-        Arrays.fill(wireRenderingCache, -1);
-
         for (EnumDyeColor color : EnumDyeColor.values()) {
             wireSprites.put(color, SpriteHolderRegistry.getHolder("buildcrafttransport:wires/" + color.getName()));
         }
@@ -74,7 +72,12 @@ public class PipeWireRenderer {
     }
 
     public static void clearWireCache() {
-        Arrays.fill(wireRenderingCache, -1);
+        for (int i = 0; i < wireRenderingCache.length; i++) {
+            if (wireRenderingCache[i] != null) {
+                wireRenderingCache[i].delete();
+                wireRenderingCache[i] = null;
+            }
+        }
     }
 
     public static SpriteHolderRegistry.SpriteHolder getWireSprite(EnumDyeColor colour) {
@@ -204,7 +207,7 @@ public class PipeWireRenderer {
         return quads;
     }
 
-    private static void renderQuads(MutableQuad[] quads, ISprite sprite, int level) {
+    private static StaticMesh buildMesh(MutableQuad[] quads, ISprite sprite, int level) {
         VertexFormat vf = DefaultVertexFormats.POSITION_TEX_COLOR;
         Tessellator tessellator = new Tessellator(quads.length * vf.getSize());
         BufferBuilder bb = tessellator.getBuffer();
@@ -224,7 +227,7 @@ public class PipeWireRenderer {
             renderVertex(bb, q.vertex_2, sprite, vOffset);
             renderVertex(bb, q.vertex_3, sprite, vOffset);
         }
-        tessellator.draw();
+        return StaticMesh.of(bb);
     }
 
     private static void renderVertex(BufferBuilder bb, MutableVertex vertex, ISprite sprite, float vOffset) {
@@ -236,20 +239,14 @@ public class PipeWireRenderer {
         bb.endVertex();
     }
 
-    private static int compileQuads(MutableQuad[] quads, EnumDyeColor colour, boolean isOn) {
-        int index = GlStateManager.glGenLists(1);
-        GlStateManager.glNewList(index, GL11.GL_COMPILE);
-
+    private static StaticMesh compileQuads(MutableQuad[] quads, EnumDyeColor colour, boolean isOn) {
         ISprite sprite = wireSprites.get(colour);
         /*
          * Currently pipe wire only supports two states - on or off. However all the textures supply 16 different
          * states, which could (possibly) be used for making pipe wire use all 16 states that normal redstone does. This
          * just opens up the possibility in the future.
          */
-        renderQuads(quads, sprite, isOn ? 15 : 0);
-
-        GL11.glEndList();
-        return index;
+        return buildMesh(quads, sprite, isOn ? 15 : 0);
     }
 
     private static int getIndex(EnumWirePart part, EnumDyeColor colour, boolean isOn) {
@@ -260,11 +257,11 @@ public class PipeWireRenderer {
         return WIRE_COUNT + bet.ordinal() * 32 + colour.ordinal() * 2 + (isOn ? 1 : 0);
     }
 
-    private static int compileWire(EnumWirePart part, EnumDyeColor colour, boolean isOn) {
+    private static StaticMesh compileWire(EnumWirePart part, EnumDyeColor colour, boolean isOn) {
         return compileQuads(getQuads(part), colour, isOn);
     }
 
-    private static int compileWire(EnumWireBetween between, EnumDyeColor colour, boolean isOn) {
+    private static StaticMesh compileWire(EnumWireBetween between, EnumDyeColor colour, boolean isOn) {
         return compileQuads(getQuads(between), colour, isOn);
     }
 
@@ -280,30 +277,26 @@ public class PipeWireRenderer {
             EnumDyeColor color = partColor.getValue();
             boolean isOn = pipe.wireManager.isPowered(part);
             int idx = getIndex(part, color, isOn);
-            if (wireRenderingCache[idx] == -1) {
+            if (wireRenderingCache[idx] == null) {
                 wireRenderingCache[idx] = compileWire(part, color, isOn);
             }
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, isOn ? 240 : blockLight, skyLight);
-            GlStateManager.callList(wireRenderingCache[idx]);
+            wireRenderingCache[idx].draw();
         }
         for (Map.Entry<EnumWireBetween, EnumDyeColor> betweenColor : pipe.getWireManager().betweens.entrySet()) {
             EnumWireBetween between = betweenColor.getKey();
             EnumDyeColor color = betweenColor.getValue();
             boolean isOn = pipe.wireManager.isPowered(between.parts[0]);
             int idx = getIndex(between, color, isOn);
-            if (wireRenderingCache[idx] == -1) {
+            if (wireRenderingCache[idx] == null) {
                 wireRenderingCache[idx] = compileWire(between, color, isOn);
             }
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, isOn ? 240 : blockLight, skyLight);
-            GlStateManager.callList(wireRenderingCache[idx]);
+            wireRenderingCache[idx].draw();
         }
         GlStateManager.popMatrix();
         GlStateManager.enableLighting();
-        /*
-         * Directly rendering (like with a gllist) changes the colour directly, so we need to change the opengl state
-         * directly
-         */
-        GL11.glColor3f(1, 1, 1);
+        // The meshes' colour array left the current colour undefined (StaticMesh resets GlStateManager's cache)
         GlStateManager.color(1, 1, 1, 1);
     }
 

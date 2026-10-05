@@ -38,6 +38,7 @@ import buildcraft.api.core.render.ISprite;
 
 import buildcraft.lib.client.guide.font.IFontRenderer;
 import buildcraft.lib.client.render.fluid.FluidRenderer;
+import buildcraft.lib.client.render.gl.RasterState;
 import buildcraft.lib.client.sprite.SpriteNineSliced;
 import buildcraft.lib.client.sprite.SubSprite;
 import buildcraft.lib.expression.api.IConstantNode;
@@ -340,7 +341,7 @@ public class GuiUtil {
     public static AutoGlScissor scissor(IGuiArea area) {
         GuiRectangle rect = area.asImmutable();
         if (scissorRegions.isEmpty()) {
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
+            RasterState.setScissorTest(true);
         }
         scissorRegions.push(rect);
         scissor0();
@@ -353,7 +354,7 @@ public class GuiUtil {
                 }
                 GuiRectangle next = scissorRegions.peek();
                 if (next == null) {
-                    GL11.glDisable(GL11.GL_SCISSOR_TEST);
+                    RasterState.setScissorTest(false);
                 } else {
                     scissor0();
                 }
@@ -391,7 +392,7 @@ public class GuiUtil {
         double scaleH = mc.displayHeight / res.getScaledHeight_double();
         int rx = (int) (x * scaleW);
         int ry = (int) (mc.displayHeight - (y + height) * scaleH);
-        GL11.glScissor(rx, ry, (int) (width * scaleW), (int) (height * scaleH));
+        RasterState.scissor(rx, ry, (int) (width * scaleW), (int) (height * scaleH));
     }
 
     public static ISprite subRelative(ISprite sprite, double u, double v, double width, double height, double size) {

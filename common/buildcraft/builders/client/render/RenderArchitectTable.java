@@ -9,6 +9,7 @@ package buildcraft.builders.client.render;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 
@@ -27,8 +28,8 @@ public class RenderArchitectTable extends TileEntitySpecialRenderer<TileArchitec
         Minecraft.getMinecraft().profiler.startSection("bc");
         Minecraft.getMinecraft().profiler.startSection("architect_table");
 
-        GL11.glPushMatrix();
-        GL11.glTranslated(x - tile.getPos().getX(), y - tile.getPos().getY(), z - tile.getPos().getZ());
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x - tile.getPos().getX(), y - tile.getPos().getY(), z - tile.getPos().getZ());
         RenderHelper.disableStandardItemLighting();
 
         Minecraft.getMinecraft().profiler.startSection("box");
@@ -36,7 +37,7 @@ public class RenderArchitectTable extends TileEntitySpecialRenderer<TileArchitec
         Minecraft.getMinecraft().profiler.endSection();
 
         RenderHelper.enableStandardItemLighting();
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
 
         Minecraft.getMinecraft().profiler.endSection();
         Minecraft.getMinecraft().profiler.endSection();

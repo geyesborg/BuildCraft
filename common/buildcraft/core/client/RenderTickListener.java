@@ -18,6 +18,7 @@ import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -172,7 +173,7 @@ public class RenderTickListener {
             IBox box = ItemMapLocation.getPointBox(stack);
             if (box != null) {
                 Vec3d[][] vectors = MAP_LOCATION_POINT[face.ordinal()];
-                GL11.glTranslated(box.min().getX(), box.min().getY(), box.min().getZ());
+                GlStateManager.translate(box.min().getX(), box.min().getY(), box.min().getZ());
                 for (Vec3d[] vec : vectors) {
                     LaserData_BC8 laser =
                         new LaserData_BC8(BuildCraftLaserManager.STRIPES_WRITE, vec[0], vec[1], 1 / 16.0);

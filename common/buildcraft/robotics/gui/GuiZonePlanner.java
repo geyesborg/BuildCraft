@@ -32,6 +32,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 
+import buildcraft.lib.client.render.gl.Perspective;
+import buildcraft.lib.client.render.gl.RasterState;
+import buildcraft.lib.client.render.gl.StaticMesh;
 import buildcraft.lib.gui.GuiBC8;
 import buildcraft.lib.gui.GuiIcon;
 import buildcraft.lib.gui.pos.GuiRectangle;
@@ -293,15 +296,15 @@ public class GuiZonePlanner extends GuiBC8<ContainerZonePlanner> {
         int viewportY = mc.displayHeight - (sizeY + y + offsetY) * scaledResolution.getScaleFactor();
         int viewportWidth = sizeX * scaledResolution.getScaleFactor();
         int viewportHeight = sizeY * scaledResolution.getScaleFactor();
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor(
+        RasterState.setScissorTest(true);
+        RasterState.scissor(
             viewportX,
             viewportY,
             viewportWidth,
             viewportHeight
         );
         GlStateManager.clear(GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+        RasterState.setScissorTest(false);
         GlStateManager.viewport(
             viewportX,
             viewportY,
@@ -309,7 +312,7 @@ public class GuiZonePlanner extends GuiBC8<ContainerZonePlanner> {
             viewportHeight
         );
         GlStateManager.scale(scaledResolution.getScaleFactor(), scaledResolution.getScaleFactor(), 1);
-        GLU.gluPerspective(70.0F, (float) sizeX / sizeY, 1F, 10000.0F);
+        Perspective.multiply(70.0F, (float) sizeX / sizeY, 1F, 10000.0F);
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.loadIdentity();
         RenderHelper.enableStandardItemLighting();
@@ -359,13 +362,16 @@ public class GuiZonePlanner extends GuiBC8<ContainerZonePlanner> {
         maxChunkZ++;
         for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
             for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                ZonePlannerMapRenderer.INSTANCE.getChunkGlList(
+                StaticMesh mesh = ZonePlannerMapRenderer.INSTANCE.getChunkMesh(
                     new ZonePlannerMapChunkKey(
                         new ChunkPos(chunkX, chunkZ),
                         dimension,
                         container.tile.getLevel()
                     )
-                ).ifPresent(GlStateManager::callList);
+                );
+                if (mesh != null) {
+                    mesh.draw();
+                }
             }
         }
 

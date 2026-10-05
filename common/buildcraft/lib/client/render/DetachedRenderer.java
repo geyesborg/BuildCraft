@@ -14,6 +14,7 @@ import java.util.Map;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.Vec3d;
@@ -95,15 +96,15 @@ public enum DetachedRenderer {
     }
 
     public static void fromWorldOriginPre(EntityPlayer player, float partialTicks) {
-        GL11.glPushMatrix();
+        GlStateManager.pushMatrix();
 
         Vec3d diff = new Vec3d(0, 0, 0);
         diff = diff.subtract(player.getPositionEyes(partialTicks));
         diff = diff.add(0, player.getEyeHeight(), 0);
-        GL11.glTranslated(diff.x, diff.y, diff.z);
+        GlStateManager.translate(diff.x, diff.y, diff.z);
     }
 
     public static void fromWorldOriginPost() {
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
     }
 }

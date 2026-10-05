@@ -31,7 +31,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import buildcraft.lib.client.render.gl.Perspective;
 import buildcraft.lib.net.MessageManager;
+import buildcraft.lib.client.render.gl.RasterState;
 
 public enum ClientSnapshots {
     INSTANCE;
@@ -115,15 +117,15 @@ public enum ClientSnapshots {
         int viewportY = Minecraft.getMinecraft().displayHeight - (sizeY + offsetY) * scaledResolution.getScaleFactor();
         int viewportWidth = sizeX * scaledResolution.getScaleFactor();
         int viewportHeight = sizeY * scaledResolution.getScaleFactor();
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor(
+        RasterState.setScissorTest(true);
+        RasterState.scissor(
             viewportX,
             viewportY,
             viewportWidth,
             viewportHeight
         );
         GlStateManager.clear(GL11.GL_DEPTH_BUFFER_BIT);
-        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+        RasterState.setScissorTest(false);
         GlStateManager.viewport(
             viewportX,
             viewportY,
@@ -131,7 +133,7 @@ public enum ClientSnapshots {
             viewportHeight
         );
         GlStateManager.scale(scaledResolution.getScaleFactor(), scaledResolution.getScaleFactor(), 1);
-        GLU.gluPerspective(70.0F, (float) sizeX / sizeY, 0.1F, 1000.0F);
+        Perspective.multiply(70.0F, (float) sizeX / sizeY, 0.1F, 1000.0F);
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         GlStateManager.loadIdentity();
         GlStateManager.enableRescaleNormal();

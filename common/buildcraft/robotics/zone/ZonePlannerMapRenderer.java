@@ -6,8 +6,9 @@
 
 package buildcraft.robotics.zone;
 
-import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nullable;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -24,6 +25,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import buildcraft.lib.client.model.MutableVertex;
+import buildcraft.lib.client.render.gl.StaticMesh;
 
 import buildcraft.robotics.zone.ZonePlannerMapChunk.MapColourData;
 
@@ -31,16 +33,16 @@ import buildcraft.robotics.zone.ZonePlannerMapChunk.MapColourData;
 public enum ZonePlannerMapRenderer {
     INSTANCE;
 
-    private static final Cache<ZonePlannerMapChunkKey, Integer> CHUNK_GL_CACHE = CacheBuilder.newBuilder()
+    private static final Cache<ZonePlannerMapChunkKey, StaticMesh> CHUNK_MESHES = CacheBuilder.newBuilder()
             .expireAfterAccess(20, TimeUnit.SECONDS)
             .removalListener(ZonePlannerMapRenderer::onRemove)
             .build();
     private final MutableVertex vertex = new MutableVertex();
 
-    private static void onRemove(RemovalNotification<ZonePlannerMapChunkKey, Integer> notification) {
-        Integer glList = notification.getValue();
-        if (glList != null) {
-            GL11.glDeleteLists(glList, 1);
+    private static void onRemove(RemovalNotification<ZonePlannerMapChunkKey, StaticMesh> notification) {
+        StaticMesh mesh = notification.getValue();
+        if (mesh != null) {
+            mesh.delete();
         }
     }
 
@@ -101,15 +103,15 @@ public enum ZonePlannerMapRenderer {
         drawBlockCuboid(builder, x, y, z, 1);
     }
 
-    public OptionalInt getChunkGlList(ZonePlannerMapChunkKey key) {
-        Integer glList = CHUNK_GL_CACHE.getIfPresent(key);
-        if (glList == null) {
+    /** The chunk's map mesh, built on first use; null while the chunk's map data hasn't arrived */
+    @Nullable
+    public StaticMesh getChunkMesh(ZonePlannerMapChunkKey key) {
+        StaticMesh mesh = CHUNK_MESHES.getIfPresent(key);
+        if (mesh == null) {
             genChunk(key);
-            glList = CHUNK_GL_CACHE.getIfPresent(key);
+            mesh = CHUNK_MESHES.getIfPresent(key);
         }
-        return glList != null
-                ? OptionalInt.of(glList)
-                : OptionalInt.empty();
+        return mesh;
     }
 
     public void setColor(int color) {
@@ -138,10 +140,6 @@ public enum ZonePlannerMapRenderer {
                 }
             }
         }
-        int glList = GL11.glGenLists(1);
-        GL11.glNewList(glList, GL11.GL_COMPILE);
-        Tessellator.getInstance().draw();
-        GL11.glEndList();
-        CHUNK_GL_CACHE.put(key, glList);
+        CHUNK_MESHES.put(key, StaticMesh.of(builder));
     }
 }

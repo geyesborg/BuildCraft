@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
 import buildcraft.lib.client.model.MutableVertex;
 
-/** The packed quads FluidRenderer appends must be byte-for-byte what the per-element BufferBuilder calls write */
+/** Packed quads (FluidRenderer, MutableQuad.render) must be byte-for-byte what the per-element BufferBuilder calls write */
 public class FluidRendererPackTest {
 
     @Test
@@ -34,6 +34,35 @@ public class FluidRendererPackTest {
                 v.lighti(random.nextInt(16), random.nextInt(16));
                 v.renderAsBlock(slow);
                 FluidRenderer.packVertex(v);
+            }
+            Assert.assertEquals(slow.getVertexCount(), fast.getVertexCount());
+            int bytes = slow.getVertexCount() * DefaultVertexFormats.BLOCK.getSize();
+            ByteBuffer a = slow.getByteBuffer(), b = fast.getByteBuffer();
+            for (int i = 0; i < bytes; i++) {
+                Assert.assertEquals("byte " + i + " of round " + round, a.get(i), b.get(i));
+            }
+        }
+    }
+    @Test
+    public void packedMutableQuadMatchesPerVertexRendering() {
+        Random random = new Random(4556);
+        for (int round = 0; round < 200; round++) {
+            double tx = (random.nextDouble() - 0.5) * 400, ty = (random.nextDouble() - 0.5) * 300, tz = (random.nextDouble() - 0.5) * 400;
+            BufferBuilder slow = new BufferBuilder(256), fast = new BufferBuilder(256);
+            slow.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+            fast.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+            slow.setTranslation(tx, ty, tz);
+            fast.setTranslation(tx, ty, tz);
+            for (int q = 0; q < 3; q++) {
+                buildcraft.lib.client.model.MutableQuad quad = new buildcraft.lib.client.model.MutableQuad();
+                for (MutableVertex v : new MutableVertex[] { quad.vertex_0, quad.vertex_1, quad.vertex_2, quad.vertex_3 }) {
+                    v.positiond(random.nextDouble() * 2 - 0.5, random.nextDouble() * 2 - 0.5, random.nextDouble() * 2 - 0.5);
+                    v.colouri(random.nextInt());
+                    v.texf(random.nextFloat(), random.nextFloat());
+                    v.lighti(random.nextInt(16), random.nextInt(16));
+                    v.renderAsBlock(slow);
+                }
+                quad.render(fast);
             }
             Assert.assertEquals(slow.getVertexCount(), fast.getVertexCount());
             int bytes = slow.getVertexCount() * DefaultVertexFormats.BLOCK.getSize();

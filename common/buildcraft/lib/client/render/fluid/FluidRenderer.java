@@ -6,9 +6,6 @@
 
 package buildcraft.lib.client.render.fluid;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.nio.ByteOrder;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +34,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import buildcraft.lib.client.model.MutableVertex;
+import buildcraft.lib.client.render.BlockQuadPacker;
 import buildcraft.lib.misc.GuiUtil;
 import buildcraft.lib.misc.MathUtil;
 import buildcraft.lib.misc.RenderUtil;
@@ -65,76 +63,31 @@ public class FluidRenderer {
     private static boolean invertU, invertV;
     private static double xTexDiff, yTexDiff, zTexDiff;
 
-    // With DefaultVertexFormats.BLOCK each quad is packed here and appended whole (addVertexData): the same
-    // bits pos/color/tex/lightmap/endVertex would write, without their per-element bookkeeping and checks
-    private static final MethodHandle X_OFFSET, Y_OFFSET, Z_OFFSET, NO_COLOR;
-    private static final boolean LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
-    private static final int BLOCK_INTS = 7;
-    private static final int[] quad = new int[4 * BLOCK_INTS];
+    // With DefaultVertexFormats.BLOCK each quad is packed and appended whole (BlockQuadPacker)
+    private static final int[] quad = new int[BlockQuadPacker.QUAD_INTS];
     private static int quadVertices;
     private static boolean packQuads;
     private static double xOffset, yOffset, zOffset;
 
-    static {
-        try {
-            MethodHandles.Lookup lookup = MethodHandles.lookup();
-            X_OFFSET = field(lookup, "field_179004_l", "xOffset");
-            Y_OFFSET = field(lookup, "field_179005_m", "yOffset");
-            Z_OFFSET = field(lookup, "field_179002_n", "zOffset");
-            NO_COLOR = field(lookup, "field_78939_q", "noColor");
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("BufferBuilder's translation fields are not readable", e);
-        }
-    }
-
-    /** Getter for a BufferBuilder field: production (SRG) name, else the development (MCP) one */
-    private static MethodHandle field(MethodHandles.Lookup lookup, String srg, String mcp) throws IllegalAccessException {
-        java.lang.reflect.Field f;
-        try {
-            f = BufferBuilder.class.getDeclaredField(srg);
-        } catch (NoSuchFieldException e) {
-            try {
-                f = BufferBuilder.class.getDeclaredField(mcp);
-            } catch (NoSuchFieldException e2) {
-                throw new IllegalStateException("BufferBuilder has neither " + srg + " nor " + mcp, e2);
-            }
-        }
-        f.setAccessible(true);
-        return lookup.unreflectGetter(f);
-    }
-
     static void startQuads(BufferBuilder buffer) {
         bb = buffer;
-        try {
-            packQuads = buffer.getVertexFormat() == DefaultVertexFormats.BLOCK && !(boolean) NO_COLOR.invokeExact(buffer);
-            if (packQuads) {
-                xOffset = (double) X_OFFSET.invokeExact(buffer);
-                yOffset = (double) Y_OFFSET.invokeExact(buffer);
-                zOffset = (double) Z_OFFSET.invokeExact(buffer);
-            }
-        } catch (Throwable t) {
-            throw new IllegalStateException("Reading BufferBuilder state failed", t);
+        packQuads = BlockQuadPacker.canPack(buffer);
+        if (packQuads) {
+            xOffset = BlockQuadPacker.xOffset(buffer);
+            yOffset = BlockQuadPacker.yOffset(buffer);
+            zOffset = BlockQuadPacker.zOffset(buffer);
         }
         quadVertices = 0;
     }
 
     static void packVertex(MutableVertex v) {
-        int o = quadVertices * BLOCK_INTS;
-        quad[o] = Float.floatToRawIntBits((float) (v.position_x + xOffset));
-        quad[o + 1] = Float.floatToRawIntBits((float) (v.position_y + yOffset));
-        quad[o + 2] = Float.floatToRawIntBits((float) (v.position_z + zOffset));
-        // color(r, g, b, a) bytes: the same int in either byte order
-        quad[o + 3] = (v.colour_r & 0xFF) | (v.colour_g & 0xFF) << 8 | (v.colour_b & 0xFF) << 16 | (v.colour_a & 0xFF) << 24;
-        quad[o + 4] = Float.floatToRawIntBits(v.tex_u);
-        quad[o + 5] = Float.floatToRawIntBits(v.tex_v);
-        // lightmap(sky, block) shorts: block first
-        int block = (v.light_block << 4) & 0xFFFF, sky = (v.light_sky << 4) & 0xFFFF;
-        quad[o + 6] = LITTLE_ENDIAN ? block | sky << 16 : block << 16 | sky;
+        BlockQuadPacker.packVertex(quad, quadVertices * BlockQuadPacker.VERTEX_INTS, v, xOffset, yOffset, zOffset);
         if (++quadVertices == 4) {
             bb.addVertexData(quad);
             quadVertices = 0;
         }
     }
+
     static {
         // TODO: allow the caller to change the light level
         vertex.lighti(0xF, 0xF);

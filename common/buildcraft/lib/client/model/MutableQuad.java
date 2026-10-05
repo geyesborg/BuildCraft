@@ -6,6 +6,8 @@
 
 package buildcraft.lib.client.model;
 
+import buildcraft.lib.client.render.BlockQuadPacker;
+
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Point2f;
 import javax.vecmath.Tuple2f;
@@ -153,6 +155,10 @@ public class MutableQuad {
     }
 
     public void render(BufferBuilder bb) {
+        if (BlockQuadPacker.canPack(bb)) {
+            BlockQuadPacker.putQuad(bb, vertex_0, vertex_1, vertex_2, vertex_3);
+            return;
+        }
         vertex_0.render(bb);
         vertex_1.render(bb);
         vertex_2.render(bb);

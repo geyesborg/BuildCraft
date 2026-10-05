@@ -68,14 +68,19 @@ public enum PipeFlowRendererItems implements IPipeFlowRenderer<PipeFlowItems> {
         int lightc = world.getCombinedLight(flow.pipe.getHolder().getPipePos(), 0);
 
         List<TravellingItem> toRender = flow.getAllItemsForRender();
+        // Consecutive items (neighbours when they bunch up) get different size steps so their faces aren't coplanar;
+        // the start differs between neighbouring pipes
+        BlockPos pipePos = flow.pipe.getHolder().getPipePos();
+        int sizeStep = pipePos.getX() + pipePos.getY() * 3 + pipePos.getZ() * 5;
 
         for (TravellingItem item : toRender) {
+            sizeStep = (sizeStep + 1) & (ItemQuadTransforms.SIZE_STEPS - 1);
             Vec3d pos = item.getRenderPosition(BlockPos.ORIGIN, now, partialTicks, flow);
 
             ItemStack stack = item.clientItemLink.get();
             if (stack != null && !stack.isEmpty()) {
                 ItemRenderUtil.renderItemStack(x + pos.x, y + pos.y, z + pos.z, //
-                    stack, item.stackSize, lightc, item.getRenderDirection(now, partialTicks), bb);
+                    stack, item.stackSize, lightc, item.getRenderDirection(now, partialTicks), bb, sizeStep);
             }
             if (item.colour != null) {
                 bb.setTranslation(x + pos.x, y + pos.y, z + pos.z);

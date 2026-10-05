@@ -83,11 +83,18 @@ public class ItemRenderUtil {
      * You must call {@link #endItemBatch()} after your have rendered all of the items. */
     public static void renderItemStack(double x, double y, double z, ItemStack stack, int stackCount, int lightc,
         EnumFacing dir, BufferBuilder bb) {
+        renderItemStack(x, y, z, stack, stackCount, lightc, dir, bb, 0);
+    }
+
+    /** As above; sizeStep (0 .. {@link ItemQuadTransforms#SIZE_STEPS} - 1) draws the item slightly larger, so that items
+     * drawn overlapping (bunched in a pipe) get different steps and don't z-fight */
+    public static void renderItemStack(double x, double y, double z, ItemStack stack, int stackCount, int lightc,
+        EnumFacing dir, BufferBuilder bb, int sizeStep) {
         if (stack.isEmpty()) {
             return;
         }
         try {
-            renderItemStackInternal(x, y, z, stack, stackCount, lightc, dir, bb);
+            renderItemStackInternal(x, y, z, stack, stackCount, lightc, dir, bb, sizeStep);
         } catch (Throwable exception) {
             CrashReport report = CrashReport.makeCrashReport(exception, "Rendering Item Stack");
             CrashReportCategory category = report.makeCategory("Item being rendered");
@@ -101,7 +108,8 @@ public class ItemRenderUtil {
     }
 
     private static void renderItemStackInternal(
-        double x, double y, double z, ItemStack stack, int stackCount, int lightc, EnumFacing dir, BufferBuilder bb
+        double x, double y, double z, ItemStack stack, int stackCount, int lightc, EnumFacing dir, BufferBuilder bb,
+        int sizeStep
     ) {
         if (dir == null) {
             dir = EnumFacing.EAST;
@@ -115,7 +123,7 @@ public class ItemRenderUtil {
         if (bb != null && !requireGl) {
 
             final int itemModelCount = getStackModelCount(stackCount);
-            MutableQuad[] quads = ItemQuadTransforms.get(model, dir, tintColours(model, stack));
+            MutableQuad[] quads = ItemQuadTransforms.get(model, dir, tintColours(model, stack), sizeStep);
 
             if (itemModelCount > 1) {
                 setupModelOffsetRandom(stack);
@@ -151,7 +159,8 @@ public class ItemRenderUtil {
         // first was drawn at the first one's position)
         GlStateManager.pushMatrix();
         GlStateManager.translate(x, y, z);
-        GlStateManager.scale(0.3, 0.3, 0.3);
+        double scale = 0.3 * ItemQuadTransforms.scale(sizeStep) / ItemQuadTransforms.scale(0);
+        GlStateManager.scale(scale, scale, scale);
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightc % (float) 0x1_00_00,
             lightc / (float) 0x1_00_00);
         Minecraft.getMinecraft().getRenderItem().renderItem(stack, model);

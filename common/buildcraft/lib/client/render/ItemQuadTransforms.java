@@ -32,25 +32,31 @@ import buildcraft.lib.client.model.MutableQuad;
 public final class ItemQuadTransforms {
     private static final int LIMIT = 2048;
     private static final float SCALE = 0.30f;
+    /** Size steps for items drawn close together: equal cubes on one axis would have coplanar faces and z-fight where
+     * they overlap (bunched items in a pipe flicker at their boundaries). Step n is (1 + n * SIZE_STEP) times larger. */
+    public static final int SIZE_STEPS = 8;
+    private static final float SIZE_STEP = 0.004f;
 
     private static final class Key {
         final IBakedModel model;
         final EnumFacing dir;
         final int[] tints;
+        final int sizeStep;
         final int hash;
 
-        Key(IBakedModel model, EnumFacing dir, int[] tints) {
+        Key(IBakedModel model, EnumFacing dir, int[] tints, int sizeStep) {
             this.model = model;
             this.dir = dir;
             this.tints = tints;
-            this.hash = (System.identityHashCode(model) * 31 + dir.ordinal()) * 31 + Arrays.hashCode(tints);
+            this.sizeStep = sizeStep;
+            this.hash = ((System.identityHashCode(model) * 31 + dir.ordinal()) * 31 + Arrays.hashCode(tints)) * 31 + sizeStep;
         }
 
         @Override
         public boolean equals(Object obj) {
             if (!(obj instanceof Key)) return false;
             Key o = (Key) obj;
-            return model == o.model && dir == o.dir && Arrays.equals(tints, o.tints);
+            return model == o.model && dir == o.dir && sizeStep == o.sizeStep && Arrays.equals(tints, o.tints);
         }
 
         @Override
@@ -74,18 +80,24 @@ public final class ItemQuadTransforms {
     }
 
     /** The transformed quads in render order; tints holds the colour of each tinted quad in that order (null if
-     * none). Callers set the light and render; they must not change anything else. */
-    public static MutableQuad[] get(IBakedModel model, EnumFacing dir, int[] tints) {
-        Key key = new Key(model, dir, tints);
+     * none); sizeStep (0 .. SIZE_STEPS - 1) makes the item slightly larger. Callers set the light and render; they must
+     * not change anything else. */
+    public static MutableQuad[] get(IBakedModel model, EnumFacing dir, int[] tints, int sizeStep) {
+        if (sizeStep < 0 || sizeStep >= SIZE_STEPS) throw new IllegalArgumentException("sizeStep " + sizeStep);
+        Key key = new Key(model, dir, tints, sizeStep);
         MutableQuad[] quads = cache.get(key);
         if (quads == null) {
-            quads = build(model, dir, tints);
+            quads = build(model, dir, tints, scale(sizeStep));
             cache.put(key, quads);
         }
         return quads;
     }
 
-    static MutableQuad[] build(IBakedModel model, EnumFacing dir, int[] tints) {
+    public static float scale(int sizeStep) {
+        return sizeStep == 0 ? SCALE : SCALE * (1 + sizeStep * SIZE_STEP);
+    }
+
+    static MutableQuad[] build(IBakedModel model, EnumFacing dir, int[] tints, float scale) {
         List<MutableQuad> built = new ArrayList<>();
         int tint = 0;
         for (EnumPipePart part : EnumPipePart.VALUES) {
@@ -93,7 +105,7 @@ public final class ItemQuadTransforms {
                 MutableQuad q = new MutableQuad(-1, null);
                 q.fromBakedItem(quad);
                 q.translated(-0.5, -0.5, -0.5);
-                q.scaled(SCALE);
+                q.scaled(scale);
                 q.rotate(EnumFacing.SOUTH, dir, 0, 0, 0);
                 if (quad.hasTintIndex()) {
                     int colour = tints[tint++];

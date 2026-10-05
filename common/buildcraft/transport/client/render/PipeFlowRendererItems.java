@@ -28,6 +28,7 @@ import buildcraft.api.transport.pipe.IPipeFlowRenderer;
 import buildcraft.lib.client.model.ModelUtil;
 import buildcraft.lib.client.model.ModelUtil.UvFaceData;
 import buildcraft.lib.client.model.MutableQuad;
+import buildcraft.lib.client.render.ItemQuadTransforms;
 import buildcraft.lib.client.render.ItemRenderUtil;
 import buildcraft.lib.misc.ColourUtil;
 
@@ -42,6 +43,7 @@ public enum PipeFlowRendererItems implements IPipeFlowRenderer<PipeFlowItems> {
     private static final MutableQuad[] COLOURED_QUADS = new MutableQuad[6];
 
     public static void onModelBake() {
+        ItemQuadTransforms.clear();
         Tuple3f center = new Point3f();
         Tuple3f radius = new Vector3f(0.2f, 0.2f, 0.2f);
 

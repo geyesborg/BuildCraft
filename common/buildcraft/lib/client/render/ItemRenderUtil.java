@@ -6,6 +6,7 @@
 
 package buildcraft.lib.client.render;
 
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -111,6 +112,31 @@ public class ItemRenderUtil {
         GL11.glPopMatrix();
     }
 
+    /** The tint colour of each tinted quad, in render order (null without tinted quads) */
+    private static int[] tintColours(IBakedModel model, ItemStack stack) {
+        int count = 0;
+        for (EnumPipePart part : EnumPipePart.VALUES) {
+            for (BakedQuad quad : model.getQuads(null, part.face, 0)) {
+                if (quad.hasTintIndex()) count++;
+            }
+        }
+        if (count == 0) return null;
+        int[] tints = new int[count];
+        int i = 0;
+        for (EnumPipePart part : EnumPipePart.VALUES) {
+            for (BakedQuad quad : model.getQuads(null, part.face, 0)) {
+                if (quad.hasTintIndex()) {
+                    int colour = Minecraft.getMinecraft().getItemColors().colorMultiplier(stack, quad.getTintIndex());
+                    if (EntityRenderer.anaglyphEnable) {
+                        colour = TextureUtil.anaglyphColor(colour);
+                    }
+                    tints[i++] = colour;
+                }
+            }
+        }
+        return tints;
+    }
+
     // Batch item rendering
 
     private static boolean inBatch = false;
@@ -158,6 +184,7 @@ public class ItemRenderUtil {
         if (bb != null && !requireGl) {
 
             final int itemModelCount = getStackModelCount(stackCount);
+            MutableQuad[] quads = ItemQuadTransforms.get(model, dir, tintColours(model, stack));
 
             if (itemModelCount > 1) {
                 setupModelOffsetRandom(stack);
@@ -173,29 +200,9 @@ public class ItemRenderUtil {
                     bb.setTranslation(x + dx, y + dy, z + dz);
                 }
 
-                float scale = 0.30f;
-
-                MutableQuad q = new MutableQuad(-1, null);
-                for (EnumPipePart part : EnumPipePart.VALUES) {
-                    for (BakedQuad quad : model.getQuads(null, part.face, 0)) {
-                        q.fromBakedItem(quad);
-                        q.translated(-0.5, -0.5, -0.5);
-                        q.scaled(scale);
-                        q.rotate(EnumFacing.SOUTH, dir, 0, 0, 0);
-                        if (quad.hasTintIndex()) {
-                            int colour =
-                                Minecraft.getMinecraft().getItemColors().colorMultiplier(stack, quad.getTintIndex());
-                            if (EntityRenderer.anaglyphEnable) {
-                                colour = TextureUtil.anaglyphColor(colour);
-                            }
-                            q.multColouri(colour, colour >> 8, colour >> 16, 0xFF);
-                        }
-                        q.lighti(lightc);
-                        Vector3f normal = q.getCalculatedNormal();
-                        q.normalvf(normal);
-                        q.multShade();
-                        q.render(bb);
-                    }
+                for (MutableQuad q : quads) {
+                    q.lighti(lightc);
+                    q.render(bb);
                 }
             }
 

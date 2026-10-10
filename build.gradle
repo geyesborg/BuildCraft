@@ -51,7 +51,8 @@ sourceSets {
         }
         resources {
             srcDirs = ['buildcraft_resources', 'BuildCraft-Localization', 'BuildCraftGuide/guide_resources', 'compat/resources']
-            exclude '**/*.md', 'pack.png', 'pack.mcmeta'
+            // Only the submodule READMEs: the guide book's pages are *.md under assets/
+            exclude 'README.md', 'pack.png', 'pack.mcmeta'
         }
     }
     test {
